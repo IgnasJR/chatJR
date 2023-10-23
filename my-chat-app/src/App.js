@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Login from './Login';
 import Chat from './Chat';
 
+const io = require('socket.io-client');
+
+
 var CryptoJS = require('crypto-js');
 
 function App() {
@@ -16,14 +19,47 @@ function App() {
   let handleUserSelection = (userId) => {
     setSelectedUser(userId);
   };
+  
+  const connectionOptions =  {
+    "force new connection" : true,
+    "reconnectionAttempts": "Infinity", 
+    "timeout" : 10000,                  
+    "transports" : ["websocket"]
+};
+const [socket, setSocket] = useState(null);
+
+
   useEffect(() => {
-    fetchConversations();
-    fetchMessages(selectedUser);
-  }, [token, selectedUser]);
+    if(token){
+
+      let newSocket = io.connect('ws://localhost:8080/', connectionOptions);
+      // Set the socket state
+      setSocket(newSocket);
+      console.log("Succesfully connected to a socket");
+      if (selectedUser){
+        socket.emit('authenticate', { token: token, conversationId: selectedUser });
+        socket.on('message', function(messageContent) {
+          setMessages(prevMessages => [...prevMessages, messageContent]);
+          console.log('Updated Messages:', messages);          
+        });
+        
+      }
+      
+        
+      
+      fetchConversations();
+      fetchMessages(selectedUser);
+      return () => {
+        if (socket){
+          socket.disconnect();
+        }
+      }
+    }}, [token, selectedUser]);
   
   let handleInputChange = (e) => {
     setNewMessage(e.target.value);
   };
+
 
   const storedPrivateKey = localStorage.getItem('privateKey');
 
@@ -105,12 +141,12 @@ function App() {
   };
 
   const handleSendMessage = async () => {
+    let fullMessage;
     try {
       if (!selectedUser) {
         console.error('No conversation selected');
         return;
       }
-  
       const response = await fetch('http://localhost:3002/messages', {
         method: 'POST',
         headers: {
@@ -122,9 +158,15 @@ function App() {
           messageContent: newMessage,
         }),
       });
-  
+      fullMessage = JSON.stringify({
+        conversationId: selectedUser,
+        messageContent: newMessage,
+      })
+
       const data = await response.json();
       if (response.ok) {
+        socket.emit('message', { token: token, message_id: data, conversationId: selectedUser, sender_id: null, message_Content: newMessage, creted_at: null  });
+
         setNewMessage('');
         fetchMessages(selectedUser);
       } else {
@@ -133,7 +175,7 @@ function App() {
     } catch (error) {
       console.error('Error:', error);
     }
-  };
+    };
   
   
   const handleLogin = async (username, password) => {

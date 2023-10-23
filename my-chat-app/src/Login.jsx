@@ -15,8 +15,9 @@ function Login({ handleLogin }) {
     }
   };
 
-  const handleLoginClick = () => {
+  const handleLoginClick = (e) => {
     // Call the handleLogin function passed from App.js
+    e.preventDefault();
     handleLogin(username, password);
   };
 
@@ -30,6 +31,7 @@ function Login({ handleLogin }) {
 
   return (
     <div className='login'>
+      <form onSubmit={handleLoginClick}>
       <h2>Login:</h2>
       <p>Username</p>
       <input
@@ -50,9 +52,8 @@ function Login({ handleLogin }) {
         className="form-input"
       />
       <br />
-      <button onClick={handleLoginClick} className="form-button-green">
-        Login
-      </button>
+        <button type="submit" className="form-button-green">Login</button>
+      </form>
       <button onClick={handleRegisterButtonClick} className="form-button-green">
         Register
       </button>

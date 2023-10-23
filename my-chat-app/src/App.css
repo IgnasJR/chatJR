@@ -70,6 +70,8 @@ body{
 }
 
 .message-container {
+  min-width:65lh;
+  max-width: 70lh;
   overflow-y: auto;
   flex-grow: 1;
   padding: 20px;
