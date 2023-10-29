@@ -3,8 +3,6 @@ import Login from './Login';
 import Chat from './Chat';
 
 const io = require('socket.io-client');
-
-
 var CryptoJS = require('crypto-js');
 
 function App() {
@@ -42,11 +40,7 @@ const [socket, setSocket] = useState(null);
           setMessages(prevMessages => [...prevMessages, messageContent]);
           console.log('Updated Messages:', messages);          
         });
-        
       }
-      
-        
-      
       fetchConversations();
       fetchMessages(selectedUser);
       return () => {
@@ -60,12 +54,9 @@ const [socket, setSocket] = useState(null);
     setNewMessage(e.target.value);
   };
 
-
-  const storedPrivateKey = localStorage.getItem('privateKey');
-
   const fetchConversations = async () => {
     try {
-      const response = await fetch('http://localhost:3002/conversations', {
+      const response = await fetch('http://localhost:3001/api/conversations', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -84,7 +75,7 @@ const [socket, setSocket] = useState(null);
 
   const handleAddConversation = async (newUserInput) => {
     try {
-      const response = await fetch('http://localhost:3002/conversations', {
+      const response = await fetch('http://localhost:3001/api/conversations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,8 +108,7 @@ const [socket, setSocket] = useState(null);
   const fetchMessages = async (recipientId) => {
     try {
       if (recipientId) {
-        const response = await fetch(
-          `http://localhost:3002/messages/${selectedUser}`,
+        const response = await fetch(`http://localhost:3001/api/messages/${selectedUser}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -147,7 +137,7 @@ const [socket, setSocket] = useState(null);
         console.error('No conversation selected');
         return;
       }
-      const response = await fetch('http://localhost:3002/messages', {
+      const response = await fetch('http://localhost:3001/api/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +176,7 @@ const [socket, setSocket] = useState(null);
     console.log(hash);
 
     try {
-      const response = await fetch('http://localhost:3002/login', {
+      const response = await fetch('http://localhost:3001/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
