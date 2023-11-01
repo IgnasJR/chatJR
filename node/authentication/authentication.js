@@ -1,8 +1,11 @@
+/* eslint-env es6 */
+/* eslint-disable no-console */
 const jwt = require('jsonwebtoken');
 
 const jwtSecretKey = process.env.SecretKey;
 
-export const verifyJwt = async (token) => {
+// eslint-disable-next-line no-unused-vars
+const verifyJwt = async (token) => {
   if (!token) {
     return null;
   }
@@ -22,8 +25,11 @@ export const verifyJwt = async (token) => {
   };
 };
 
-export const createJwt = (user) => {
+// eslint-disable-next-line no-unused-vars
+const createJwt = (user) => {
   const token = jwt.sign({ userId: user.id }, jwtSecretKey);
 
   return token;
 };
+
+module.exports = { createJwt };

@@ -2,7 +2,8 @@ const { verifyJwt } = require('./authentication');
 
 const anonymousRoutes = ['/api/login', '/api/register'];
 
-export const authMiddleware = async (req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+const authMiddleware = async (req, res, next) => {
   if (anonymousRoutes.includes(req.path)) {
     next();
     return;
@@ -19,3 +20,5 @@ export const authMiddleware = async (req, res, next) => {
 
   next();
 };
+
+module.exports = authMiddleware;

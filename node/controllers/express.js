@@ -1,10 +1,13 @@
+/* eslint-disable operator-linebreak */
+/* eslint-disable no-unused-expressions */
 const { createJwt } = require('../authentication/authentication');
 const { connection } = require('../database/mysql');
 const { getConversationsIdsForUsers, createConversation } = require('../database/conversations');
 
 class DomainError extends Error {}
 
-export const setupExpress = (app) => {
+const setupExpress = (app) => {
+  // eslint-disable-next-line no-unused-vars
   app.post('/api/conversations', async ({ body: { otherUserId }, userId }, res) => {
     const existingConversations = await getConversationsIdsForUsers({ userId, otherUserId });
     if (existingConversations.length > 0) {
@@ -16,7 +19,7 @@ export const setupExpress = (app) => {
 
   app.post('/api/conversations', (req, res) => {
     const { otherUsername } = req.body;
-    const userId = req.userId;
+    const { userId } = req;
 
     // Check if the conversation already exists between the users
     const checkQuery = `
@@ -56,10 +59,10 @@ export const setupExpress = (app) => {
 
   // Get all users you can talk to
   app.get('/api/conversations', (req, res) => {
-    const userId = req.userId;
-    const query =
-      'SELECT conversation_id, ' +
-      '(CASE WHEN user1_id = ? THEN (SELECT username FROM Users WHERE id = user2_id) ELSE (SELECT username FROM Users WHERE id = user1_id) END) AS username ' +
+    const { userId } = req;
+    const query = 'SELECT conversation_id, ';
+    '(CASE WHEN user1_id = ? THEN ' +
+      '(SELECT username FROM Users WHERE id = user2_id) ELSE (SELECT username FROM Users WHERE id = user1_id) END) AS username ' +
       'FROM Conversations WHERE ? IN (user1_id, user2_id)';
 
     connection.query(query, [userId, userId], (err, results) => {
@@ -67,7 +70,7 @@ export const setupExpress = (app) => {
         console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving conversations' });
       } else {
-        //console.log('Retrieved conversations for user:', userId);
+        // console.log('Retrieved conversations for user:', userId);
         res.json(results);
       }
     });
@@ -80,17 +83,15 @@ export const setupExpress = (app) => {
       if (err) {
         console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving user' });
+      } else if (results.length === 0) {
+        res.status(401).json({ error: 'Invalid username or password' });
       } else {
-        if (results.length === 0) {
-          res.status(401).json({ error: 'Invalid username or password' });
+        const user = results[0];
+        if (user.password === password) {
+          const token = createJwt(user);
+          res.json({ userId: user.id, token });
         } else {
-          const user = results[0];
-          if (user.password === password) {
-            const token = createJwt(user);
-            res.json({ userId: user.id, token });
-          } else {
-            res.status(401).json({ error: 'Invalid username or password' });
-          }
+          res.status(401).json({ error: 'Invalid username or password' });
         }
       }
     });
@@ -99,7 +100,7 @@ export const setupExpress = (app) => {
   // Get messages between two users
   app.get('/api/messages/:conversationId', (req, res) => {
     const { conversationId } = req.params;
-    const userId = req.userId;
+    const { userId } = req;
 
     const query = `SELECT M.* FROM Messages M JOIN Conversations 
                     C ON M.conversation_id = C.conversation_id 
@@ -145,3 +146,5 @@ export const setupExpress = (app) => {
     });
   });
 };
+
+module.exports = { setupExpress };

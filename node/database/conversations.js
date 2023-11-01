@@ -1,6 +1,6 @@
 const { connection } = require('./mysql');
 
-export const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
+const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
   const checkQuery = 'SELECT conversation_id FROM Conversations WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)';
   const conversationsIds = await new Promise((resolve, reject) => {
     connection.query(checkQuery, [userId, otherUserId, otherUserId, userId], (checkErr, checkResults) => {
@@ -16,7 +16,7 @@ export const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
   return conversationsIds;
 };
 
-export const createConversation = async ({ userId, otherUserId }) => {
+const createConversation = async ({ userId, otherUserId }) => {
   const conversationQuery = 'INSERT INTO Conversations (user1_id, user2_id) VALUES (?, ?)';
   const newId = await new Promise((resolve, reject) => {
     connection.query(conversationQuery, [userId, otherUserId], (err, result) => {
