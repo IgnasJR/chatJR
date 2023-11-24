@@ -21,6 +21,12 @@ function Chat({
     ? selectedConversationData.username
     : null;
 
+    const handleSendMessageClick = (e) => {
+      e.preventDefault();
+      handleSendMessage();
+    };
+
+
   return (
     <div className="chat-container">
       <div className="sidebar">
@@ -69,16 +75,16 @@ function Chat({
           ))}
         </ul>
         <div className="input-container">
-          <input
-            className="send-textbox"
-            type="text"
-            placeholder="New Message"
-            value={newMessage}
-            onChange={handleInputChange}
-          />
-          <button onClick={handleSendMessage} className="send-button">
-            Send
-          </button>
+        <form onSubmit={handleSendMessageClick}>
+            <input
+              className="send-textbox"
+              type="text"
+              placeholder="New Message"
+              value={newMessage}
+              onChange={handleInputChange}
+            />
+            <button type="submit" className="send-button">Send</button>
+          </form>
         </div>
       </div>
       
