@@ -9,6 +9,7 @@ const connection = mysql.createConnection({
 });
 
 connection.connect((err) => {
+  console.log(process.env.DBUser);
   if (err) {
     console.error('Error connecting to MySQL:', err);
   } else {

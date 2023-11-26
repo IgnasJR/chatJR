@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 /* eslint-disable operator-linebreak */
 /* eslint-disable no-unused-expressions */
-const { createJwt } = require('../authentication/authentication');
+const { createJwt, verifyJwt } = require('../authentication/authentication');
 const { connection } = require('../database/mysql');
 const { getConversationsIdsForUsers, createConversation } = require('../database/conversations');
 
@@ -22,12 +23,9 @@ const setupExpress = (app) => {
     const { userId } = req;
 
     // Check if the conversation already exists between the users
-    const checkQuery = `
-    SELECT conversation_id 
-    FROM Conversations 
-    WHERE (user1_id = ? AND user2_id = (SELECT id FROM Users WHERE username = ?)) 
-       OR (user1_id = (SELECT id FROM Users WHERE username = ?) AND user2_id = ?)
-  `;
+    const checkQuery = `SELECT conversation_id FROM Conversations WHERE 
+                        (user1_id = ? AND user2_id = (SELECT id FROM Users 
+                        WHERE username = ?)) OR (user1_id = (SELECT id FROM Users WHERE username = ?) AND user2_id = ?)`;
 
     connection.query(checkQuery, [userId, otherUsername, otherUsername, userId], (checkErr, checkResults) => {
       if (checkErr) {
@@ -39,10 +37,8 @@ const setupExpress = (app) => {
         res.json({ conversationId: checkResults[0].conversation_id });
       } else {
         // Conversation doesn't exist, create a new one
-        const conversationQuery = `
-    INSERT INTO Conversations (user1_id, user2_id)
-    VALUES (?, (SELECT id FROM Users WHERE username = ?))
-  `;
+        const conversationQuery = `INSERT INTO Conversations (user1_id, user2_id)
+                                  VALUES (?, (SELECT id FROM Users WHERE username = ?))`;
 
         connection.query(conversationQuery, [userId, otherUsername], (err, result) => {
           if (err) {
@@ -59,18 +55,18 @@ const setupExpress = (app) => {
 
   // Get all users you can talk to
   app.get('/api/conversations', (req, res) => {
-    const { userId } = req;
-    const query = 'SELECT conversation_id, ';
-    '(CASE WHEN user1_id = ? THEN ' +
-      '(SELECT username FROM Users WHERE id = user2_id) ELSE (SELECT username FROM Users WHERE id = user1_id) END) AS username ' +
-      'FROM Conversations WHERE ? IN (user1_id, user2_id)';
+    const userId = verifyJwt(req.headers.authorization);
+    const query = `SELECT conversation_id, (CASE WHEN user1_id = ? 
+                  THEN (SELECT username FROM Users WHERE id = user2_id) 
+                  ELSE (SELECT username FROM Users WHERE id = user1_id) END) AS username
+                  FROM Conversations WHERE ? IN (user1_id, user2_id)`;
 
     connection.query(query, [userId, userId], (err, results) => {
       if (err) {
         console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving conversations' });
       } else {
-        // console.log('Retrieved conversations for user:', userId);
+        console.log('Retrieved conversations for user:', userId);
         res.json(results);
       }
     });
@@ -100,7 +96,7 @@ const setupExpress = (app) => {
   // Get messages between two users
   app.get('/api/messages/:conversationId', (req, res) => {
     const { conversationId } = req.params;
-    const { userId } = req;
+    const userId = verifyJwt(req.headers.authorization);
 
     const query = `SELECT M.* FROM Messages M JOIN Conversations 
                     C ON M.conversation_id = C.conversation_id 
@@ -120,9 +116,10 @@ const setupExpress = (app) => {
 
   // Add a new message
   app.post('/api/messages', (req, res) => {
+    const userId = verifyJwt(req.headers.authorization);
     const { conversationId, messageContent } = req.body;
     const query = 'INSERT INTO Messages (sender_id, conversation_id, message_content, created_at) VALUES (?, ?, ?, ?)';
-    connection.query(query, [req.userId, conversationId, messageContent, new Date()], (err, result) => {
+    connection.query(query, [userId, conversationId, messageContent, new Date()], (err, result) => {
       if (err) {
         console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error adding message' });
