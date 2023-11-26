@@ -51,14 +51,14 @@ const RegisterForm = ({ isOpen, onClose }) => {
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="form-input"
+          className="form-input-register"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="form-input"
+          className="form-input-register"
         />
         <button onClick={handleRegister} className="form-button-green">
           Register
