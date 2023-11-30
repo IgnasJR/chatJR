@@ -1,5 +1,4 @@
 body{
-  background: rgb(54,57,62);
   background: linear-gradient(90deg, rgba(54,57,62,1) 0%, rgba(59,90,157,1) 100%);
   size: 0cap;
 }
@@ -13,9 +12,7 @@ body{
 }
 
 .open-chat {
-  width: 80% !important;
   transition: margin-left 0.3s ease-in-out;
-  /* margin-left: 16% !important;  */
 }
 
 .closed-chat {
@@ -34,10 +31,11 @@ body{
 }
 
 .login{
-  
+  display: flex;
   width: 50%;
   height: 50%;
-  align-self: center;
+  align-self:center;
+  align-content: center;
   margin: auto
 }
 
@@ -80,16 +78,17 @@ body{
 .input-container {
   position: fixed;
   bottom: 0;
-  margin-top: 5%;
-  align-items: center;
   width: 100%;
+  flex-wrap: nowrap;
+  text-align: center;
+  background-color: rgb(66, 59, 92);;
 }
 
 .message-container {
   width: 100%;
   margin-left: 16%;
-  flex-direction: column-reverse
-  
+  flex-direction: column-reverse;
+  margin-bottom: 1.5%;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -110,7 +109,6 @@ body{
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 55%;
-  /* max-width: 150px; */
 }
 
 .form-button{
@@ -132,8 +130,7 @@ form{
   border-radius: 5px;
   background-color: #202225;
   color: #fff;
-  /* max-width: 40vw; */
-  width: 75%;
+  width: 70%;
 }
 
 .header-content {
@@ -151,16 +148,34 @@ form{
   width: 5%;
   text-align: center;
 }
+@media screen and (max-width: 450px) {
+  .send-textbox {
+    flex: 1;
+
+    background-color: #202225;
+    color: #fff;
+    width: 70%;
+  }
+  
+  .send-button {
+    flex: 1;
+    background-color: #7289da;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 5%;
+    text-align: center;
+    border-radius: 100%;
+    font-weight: 900;
+  }
+}
 .msg-header {
-  /* padding-left: 20px; */
   width: 100%;
-  /* margin-left: 20%; */
   height: auto;
   border-bottom: none;
   display: inline-block;
   background-color: rgb(66, 59, 92);
   position: fixed;
-
 }
 
 .form-button-green {
@@ -267,8 +282,6 @@ h2 {
 .user-item {
   padding: 10px 20px;
   cursor: pointer;
-  /* transition: background-color 0.2s; */
-  
 }
 .user-item:hover{
   background-color: rgb(64, 56, 87);
@@ -281,6 +294,8 @@ h2 {
   margin: 0px;
   height: 90%;
   margin-top: 4.5%;
+  overflow-y: scroll;
+  overflow: auto;
 }
 
 .message-item {
@@ -292,7 +307,6 @@ h2 {
 .message-content {
   padding: 10px 15px;
   border-radius: 10px;
-  /* max-width: 70%; */
   word-wrap: break-word;
   border: 1px solid #ccc;
   background-color: #fff;

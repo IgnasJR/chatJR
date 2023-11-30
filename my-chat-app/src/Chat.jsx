@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function Chat({
   currentUserId,
@@ -12,6 +12,7 @@ function Chat({
   handleSendMessage,
 }) {
   
+  const messageEl = useRef(null);
   const [newUserInput, setNewUserInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedUsername, setUsername] = useState('');
@@ -20,10 +21,19 @@ function Chat({
     (conversation) => conversation.user_id === selectedConversation
   );
 
+  useEffect(() => {
+    if (messageEl) {
+      messageEl.current.addEventListener('DOMNodeInserted', event => {
+        const { currentTarget: target } = event;
+        target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
+      });
+    }
+  })
 
-    const handleSetUsername = (e) => {
-      setUsername(e);
-    };
+
+    // const handleSetUsername = (e) => {
+    // setUsername(e);
+    // };
     const handleSendMessageClick = (e) => {
       e.preventDefault();
       handleSendMessage();
@@ -40,7 +50,10 @@ function Chat({
           {conversations.map((conversation) => (
             <li className='user-item'
               key={conversation.id}
-              onClick={() => handleUserSelection(conversation.conversation_id)}
+              onClick={() => {
+                handleUserSelection(conversation.conversation_id);
+                setUsername(conversation.username);
+              }}
             >
               {conversation.username}
             </li>
@@ -69,7 +82,7 @@ function Chat({
           <h2>{selectedUsername ? selectedUsername : 'Select a user or add a new user'}</h2>
         </div>
         </div>  
-        <ul className="message-list">
+        <ul className="message-list" ref={messageEl}>
           {messages.map((message) => (
             <li key={message.id} className={`message-item `}>
             <div className="message-sender">{message.sender_name}</div>
@@ -88,7 +101,7 @@ function Chat({
               value={newMessage}
               onChange={handleInputChange}
             />
-            <button type="submit" className="send-button">Send</button>
+            <button type="submit" className="send-button">»</button>
           </form>
         </div>
       </div>
