@@ -96,19 +96,35 @@ const setupExpress = (app) => {
   // Get messages between two users
   app.get('/api/messages/:conversationId', (req, res) => {
     const { conversationId } = req.params;
+    const lastMessageId = req.query.lastMessageId || 0;
     const userId = verifyJwt(req.headers.authorization);
 
-    const query = `SELECT M.* FROM Messages M JOIN Conversations 
-                    C ON M.conversation_id = C.conversation_id 
-                    WHERE M.conversation_id = ? AND (C.user1_id = ? 
-                    OR C.user2_id = ?)`;
+    console.log(userId, lastMessageId, conversationId);
+    let query;
+    switch (lastMessageId) {
+      case 0:
+        query = `
+        SELECT M.* FROM Messages M JOIN Conversations C 
+        ON M.conversation_id = C.conversation_id 
+        WHERE M.conversation_id = ? AND (C.user1_id = ? 
+        OR C.user2_id = ?) AND M.message_id > ? 
+        ORDER BY M.message_id DESC LIMIT 30;`;
+        break;
+      default:
+        query = `
+        SELECT M.* FROM Messages M JOIN Conversations C 
+        ON M.conversation_id = C.conversation_id 
+        WHERE M.conversation_id = ? AND (C.user1_id = ? 
+        OR C.user2_id = ?) AND M.message_id < ? 
+        ORDER BY M.message_id DESC LIMIT 30;`;
+    }
 
-    connection.query(query, [conversationId, userId, userId], (err, results) => {
+    connection.query(query, [conversationId, userId, userId, lastMessageId], (err, results) => {
       if (err) {
         console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving messages' });
       } else {
-        // console.log('Retrieved messages from the database:', results);
+        console.log(results);
         res.json(results);
       }
     });

@@ -7,14 +7,15 @@ var CryptoJS = require("crypto-js");
 
 function App() {
   let [currentUserId, setCurrentUserId] = useState();
-  let [conversations, setConversations] = useState([]);
-  let [username, setUsername] = useState("");
-  let [password, setPassword] = useState("");
-  let [token, setToken] = useState("");
-  let [messages, setMessages] = useState([]);
-  let [newMessage, setNewMessage] = useState("");
-  let [selectedUser, setSelectedUser] = useState("");
-  let handleUserSelection = (userId) => {
+  const [conversations, setConversations] = useState([]);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [token, setToken] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
+  const handleUserSelection = (userId) => {
+    setMessages([]);
     setSelectedUser(userId);
   };
 
@@ -110,18 +111,25 @@ function App() {
   const fetchMessages = async (recipientId) => {
     try {
       if (recipientId) {
-        const response = await fetch(
-          `http://localhost:3001/api/messages/${selectedUser}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        let url = `http://localhost:3001/api/messages/${selectedUser}`;
+
+        if (messages.length > 0) {
+          url += `?lastMessageId=${messages[messages.length - 1].message_id}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = await response.json();
         if (response.ok) {
-          setMessages(data);
+          if (data.length > 0) {
+            setMessages((prevMessages) => [...data, ...prevMessages]);
+          } else {
+            console.log("No messages have been received");
+          }
         } else {
           console.error("Error:", data.error);
         }
@@ -151,10 +159,6 @@ function App() {
           messageContent: newMessage,
         }),
       });
-      fullMessage = JSON.stringify({
-        conversationId: selectedUser,
-        messageContent: newMessage,
-      });
 
       const data = await response.json();
       if (response.ok) {
@@ -168,7 +172,6 @@ function App() {
         });
 
         setNewMessage("");
-        fetchMessages(selectedUser);
       } else {
         console.error(data.error);
       }

@@ -17,10 +17,6 @@ function Chat({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedUsername, setUsername] = useState('');
 
-  let selectedConversationData = conversations.find(
-    (conversation) => conversation.user_id === selectedConversation
-  );
-
   useEffect(() => {
     if (messageEl) {
       messageEl.current.addEventListener('DOMNodeInserted', event => {
@@ -30,10 +26,6 @@ function Chat({
     }
   })
 
-
-    // const handleSetUsername = (e) => {
-    // setUsername(e);
-    // };
     const handleSendMessageClick = (e) => {
       e.preventDefault();
       handleSendMessage();
