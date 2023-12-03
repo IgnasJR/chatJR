@@ -32,7 +32,7 @@ function Login({ handleLogin }) {
   return (
     <div className='login'>
       <form onSubmit={handleLoginClick}>
-      <h2>Login:</h2>
+      <h2>Welcome to chatJR 👋</h2>
       <p>Username</p>
       <input
         type="text"
@@ -52,11 +52,11 @@ function Login({ handleLogin }) {
         className="form-input"
       />
       <br />
-        <button type="submit" className="form-button-green">Login</button>
+      <div style={{width:'100%', display:'flex', justifyContent:'center'}}>
+        <button type="submit" className="button-login">Login</button>
+        <button type="button" onClick={handleRegisterButtonClick} className="button-register">Register</button>
+      </div>
       </form>
-      <button onClick={handleRegisterButtonClick} className="form-button-green">
-        Register
-      </button>
       <RegisterForm isOpen={isRegisterOpen} onClose={handleCloseRegister} />
     </div>
   );

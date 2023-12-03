@@ -43,7 +43,7 @@ const RegisterForm = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose}>
+    <Modal className={'register'} isOpen={isOpen} onRequestClose={onClose}>
       <div className="register-form">
         <h2>Register</h2>
         <input

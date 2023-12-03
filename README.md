@@ -6,3 +6,4 @@ My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platfor
 - [x] Loading a limited number of messages at a time
 - [ ] Loading more messages on scroll up
 - [ ] Implementing E2EE
+- [ ] Adding alerts (sweetalert)

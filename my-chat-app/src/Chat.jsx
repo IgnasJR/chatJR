@@ -5,7 +5,6 @@ function Chat({
   conversations,
   messages,
   handleUserSelection,
-  selectedConversation,
   handleAddConversation,
   handleInputChange,
   newMessage,

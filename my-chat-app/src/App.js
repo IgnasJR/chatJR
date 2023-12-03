@@ -97,8 +97,7 @@ function App() {
             username: newUserInput,
           },
         ]);
-        setSelectedUser(""); // Clear selected user
-        // Fetch the updated conversations after successfully adding the new user
+        setSelectedUser("");
         fetchConversations();
       } else {
         console.error(data.error);
@@ -142,7 +141,6 @@ function App() {
   };
 
   const handleSendMessage = async () => {
-    let fullMessage;
     try {
       if (!selectedUser) {
         console.error("No conversation selected");
