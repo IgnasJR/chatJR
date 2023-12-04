@@ -30,3 +30,5 @@ const createConversation = async ({ userId, otherUserId }) => {
 
   return newId;
 };
+
+module.exports = { createConversation, getConversationsIdsForUsers };

@@ -9,12 +9,16 @@ function Chat({
   handleInputChange,
   newMessage,
   handleSendMessage,
+  fetchMessages,
 }) {
-  
+  const observer = useRef();
+  let isObserving = false;
+  const lastMessageRef = useRef();
   const messageEl = useRef(null);
   const [newUserInput, setNewUserInput] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedUsername, setUsername] = useState('');
+  
 
   useEffect(() => {
     if (messageEl) {
@@ -23,7 +27,28 @@ function Chat({
         target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
       });
     }
+    observeLastMessage();
   })
+
+  const handleIntersection = (entries) => {
+    const entry = entries[0];
+    if (entry.isIntersecting && isObserving) {
+      fetchMessages(messages[0].message_id);
+      console.log(messages[0].message_id);
+    }
+    else isObserving = true;
+  };
+
+  const observeLastMessage = () => {
+    if (observer.current) {
+      observer.current.disconnect();
+    }
+
+    observer.current = new IntersectionObserver(handleIntersection);
+    if (lastMessageRef.current) {
+      observer.current.observe(lastMessageRef.current);
+    }
+  };
 
     const handleSendMessageClick = (e) => {
       e.preventDefault();
@@ -74,11 +99,12 @@ function Chat({
         </div>
         </div>  
         <ul className="message-list" ref={messageEl}>
-          {messages.map((message) => (
-            <li key={message.id} className={`message-item `}>
-            <div className="message-sender">{message.sender_name}</div>
+          {messages.map((message, index) => (
+            <li key={message.message_id} className={`message-item `}>
+            <div className="message-sender" ref={index === 0 ? lastMessageRef : null}>{message.sender_name}</div>
             <div className={`message-content ${message.sender_id === currentUserId ? 'self-message' : 'other-message'}`}>
               {message.message_content}
+              
             </div>
           </li>
           ))}

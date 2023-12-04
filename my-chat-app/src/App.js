@@ -113,7 +113,7 @@ function App() {
         let url = `http://localhost:3001/api/messages/${selectedUser}`;
 
         if (messages.length > 0) {
-          url += `?lastMessageId=${messages[messages.length - 1].message_id}`;
+          url += `?lastMessageId=${messages[0].message_id}`;
         }
 
         const response = await fetch(url, {
@@ -224,6 +224,7 @@ function App() {
           setNewMessage={setNewMessage}
           handleSendMessage={handleSendMessage}
           handleUserSelection={handleUserSelection}
+          fetchMessages={fetchMessages}
         />
       ) : (
         <Login handleLogin={handleLogin} />

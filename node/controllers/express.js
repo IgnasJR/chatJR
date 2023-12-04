@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
-/* eslint-disable operator-linebreak */
-/* eslint-disable no-unused-expressions */
+
 const { createJwt, verifyJwt } = require('../authentication/authentication');
 const { connection } = require('../database/mysql');
 const { getConversationsIdsForUsers, createConversation } = require('../database/conversations');
@@ -8,8 +7,7 @@ const { getConversationsIdsForUsers, createConversation } = require('../database
 class DomainError extends Error {}
 
 const setupExpress = (app) => {
-  // eslint-disable-next-line no-unused-vars
-  app.post('/api/conversations', async ({ body: { otherUserId }, userId }, res) => {
+  app.post('/api/conversations', async ({ body: { otherUserId }, userId }) => {
     const existingConversations = await getConversationsIdsForUsers({ userId, otherUserId });
     if (existingConversations.length > 0) {
       throw new DomainError('Conversation already exists');
@@ -116,7 +114,7 @@ const setupExpress = (app) => {
         ON M.conversation_id = C.conversation_id 
         WHERE M.conversation_id = ? AND (C.user1_id = ? 
         OR C.user2_id = ?) AND M.message_id < ? 
-        ORDER BY M.message_id DESC LIMIT 30;`;
+        ORDER BY M.message_id ASC LIMIT 30;`;
     }
 
     connection.query(query, [conversationId, userId, userId, lastMessageId], (err, results) => {
