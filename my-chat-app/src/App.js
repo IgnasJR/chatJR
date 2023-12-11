@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Login from "./Login";
 import Chat from "./Chat";
-
-const io = require("socket.io-client");
-var CryptoJS = require("crypto-js");
+import io from "socket.io-client";
+import CryptoJS from "crypto-js";
 
 function App() {
   let [currentUserId, setCurrentUserId] = useState();

@@ -125,11 +125,8 @@ body{
 form{
   display: flex;
   width: 100%;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
 
+  flex-direction: row-reverse;
 }
 
 .send-textbox {
@@ -139,7 +136,6 @@ form{
   border-radius: 5px;
   background-color: #202225;
   color: #fff;
-  width: 70%;
 }
 
 .header-content {
@@ -154,24 +150,28 @@ form{
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 5%;
-  text-align: center;
+  text-align: left;
 }
 @media screen and (max-width: 700px) {
+  .open-chat {
+    transition: margin-left 0.3s ease-in-out;
+    margin-left: 60% !important;
+    width: 40% !important;
+  }
+  .sidebar {
+    width: 60% !important;
+  }
   .send-textbox {
     flex: 1;
 
     background-color: #202225;
     color: #fff;
-    width: 70%;
   }
   .send-button {
-    flex: 1;
     background-color: #7289da;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 5%;
     text-align: center;
     border-radius: 100%;
     font-weight: 900;
@@ -280,7 +280,6 @@ h2 {
   width: 16%;
   background-color: rgb(66, 59, 92);
   transition: transform 0.3s ease-in-out;
-  min-width: 185px;
   height: 100%;
   position: fixed;
 }
