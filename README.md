@@ -1,12 +1,19 @@
-My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platform.
+#####My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platform.
 
-TODO:
+#####TODO:
 
 - [x] Chat starts at bottom
 - [x] Scroll to bottom on new message
-- [ ] Fixing UI for mobile
+- [x] Fixing UI for mobile
 - [x] Loading a limited number of messages at a time
 - [x] Loading more messages on scroll up
+- [ ] Adding users using their username, instead of their user_id
 - [ ] Implementing E2EE
 - [ ] Adding alerts (sweetalert)
 - [ ] If no messages on appear on scroll up, stop requesting
+- [ ] Log out button
+- [ ] Remove conversation
+
+#####BUG-FIXES
+
+- [ ] When a user reselects a conversation, lastMessageId doesnt get cleared

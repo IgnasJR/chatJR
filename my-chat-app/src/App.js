@@ -28,8 +28,10 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      let newSocket = io.connect("ws://localhost:8080/", connectionOptions);
-      // Set the socket state
+      let newSocket = io.connect(
+        `${window.location.protocol}//${window.location.hostname}:8080/`,
+        connectionOptions
+      ); // Set the socket state
       setSocket(newSocket);
       console.log("Succesfully connected to a socket");
       if (selectedUser) {
@@ -58,11 +60,14 @@ function App() {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/conversations", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -77,14 +82,17 @@ function App() {
 
   const handleAddConversation = async (newUserInput) => {
     try {
-      const response = await fetch("http://localhost:3001/api/conversations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ otherUserId: newUserInput }),
-      });
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ username: newUserInput }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -109,7 +117,7 @@ function App() {
   const fetchMessages = async (recipientId) => {
     try {
       if (recipientId) {
-        let url = `http://localhost:3001/api/messages/${selectedUser}`;
+        let url = `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${recipientId}`;
 
         if (messages.length > 0) {
           url += `?lastMessageId=${messages[0].message_id}`;
@@ -145,17 +153,20 @@ function App() {
         console.error("No conversation selected");
         return;
       }
-      const response = await fetch("http://localhost:3001/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          conversationId: selectedUser,
-          messageContent: newMessage,
-        }),
-      });
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.hostname}:3001/api/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            conversationId: selectedUser,
+            messageContent: newMessage,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -185,13 +196,16 @@ function App() {
     console.log(hash);
 
     try {
-      const response = await fetch("http://localhost:3001/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password: hash }),
-      });
+      const response = await fetch(
+        `${window.location.protocol}//${window.location.hostname}:3001/api/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password: hash }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {

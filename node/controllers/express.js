@@ -16,41 +16,6 @@ const setupExpress = (app) => {
     }
   });
 
-  app.post('/api/conversations', (req, res) => {
-    const { otherUsername } = req.body;
-    const { userId } = req;
-
-    // Check if the conversation already exists between the users
-    const checkQuery = `SELECT conversation_id FROM Conversations WHERE 
-                        (user1_id = ? AND user2_id = (SELECT id FROM Users 
-                        WHERE username = ?)) OR (user1_id = (SELECT id FROM Users WHERE username = ?) AND user2_id = ?)`;
-
-    connection.query(checkQuery, [userId, otherUsername, otherUsername, userId], (checkErr, checkResults) => {
-      if (checkErr) {
-        console.error('Error executing MySQL query:', checkErr);
-        throw DomainError('asdasdasd');
-      } else if (checkResults.length > 0) {
-        // Conversation already exists
-        console.log('Conversation already exists:', checkResults[0].conversation_id);
-        res.json({ conversationId: checkResults[0].conversation_id });
-      } else {
-        // Conversation doesn't exist, create a new one
-        const conversationQuery = `INSERT INTO Conversations (user1_id, user2_id)
-                                  VALUES (?, (SELECT id FROM Users WHERE username = ?))`;
-
-        connection.query(conversationQuery, [userId, otherUsername], (err, result) => {
-          if (err) {
-            console.error('Error executing MySQL query:', err);
-            res.status(500).json({ error: 'Error adding conversation' });
-          } else {
-            console.log('Added conversation between users:', userId, 'and', otherUsername);
-            res.json({ conversationId: result.insertId });
-          }
-        });
-      }
-    });
-  });
-
   // Get all users you can talk to
   app.get('/api/conversations', (req, res) => {
     const userId = verifyJwt(req.headers.authorization);
