@@ -17,3 +17,4 @@
 ##### BUG-FIXES
 
 - [ ] When a user reselects a conversation, lastMessageId doesnt get cleared
+- [ ] User is able to send an empty message

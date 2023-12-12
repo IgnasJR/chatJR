@@ -129,6 +129,14 @@ form{
   flex-direction: row-reverse;
 }
 
+.form-login{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+}
+
+
 .send-textbox {
   flex: 1;
   padding: 8px 12px;

@@ -31,7 +31,7 @@ function Login({ handleLogin }) {
 
   return (
     <div className='login'>
-      <form onSubmit={handleLoginClick}>
+      <form className='form-login' onSubmit={handleLoginClick}>
       <h2>Welcome to chatJR 👋</h2>
       <p>Username</p>
       <input
