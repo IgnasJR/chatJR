@@ -97,6 +97,10 @@ const setupExpress = (app) => {
   app.post('/api/messages', (req, res) => {
     const userId = verifyJwt(req.headers.authorization);
     const { conversationId, messageContent } = req.body;
+    if (messageContent.length === 0) {
+      res.status(400).json({ error: 'Messages cannot be empty' });
+      return;
+    }
     const query = 'INSERT INTO Messages (sender_id, conversation_id, message_content, created_at) VALUES (?, ?, ?, ?)';
     connection.query(query, [userId, conversationId, messageContent, new Date()], (err, result) => {
       if (err) {

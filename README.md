@@ -1,6 +1,6 @@
-##### My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platform.
+### My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platform.
 
-##### TODO:
+#### TODO:
 
 - [x] Chat starts at bottom
 - [x] Scroll to bottom on new message
@@ -14,7 +14,7 @@
 - [ ] Log out button
 - [ ] Remove conversation
 
-##### BUG-FIXES
+#### BUG-FIXES
 
-- [ ] When a user reselects a conversation, lastMessageId doesnt get cleared
-- [ ] User is able to send an empty message
+- [x] When a user reselects a conversation, lastMessageId doesnt get cleared
+- [x] User is able to send an empty message

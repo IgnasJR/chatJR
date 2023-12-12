@@ -152,6 +152,9 @@ function App() {
       if (!selectedUser) {
         console.error("No conversation selected");
         return;
+      } else if (newMessage === "") {
+        console.error("No message to send");
+        return;
       }
       const response = await fetch(
         `${window.location.protocol}//${window.location.hostname}:3001/api/messages`,
