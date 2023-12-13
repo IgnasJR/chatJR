@@ -11,7 +11,7 @@
 - [ ] Implementing E2EE
 - [ ] Adding alerts (sweetalert)
 - [ ] If no messages on appear on scroll up, stop requesting
-- [ ] Log out button
+- [x] Log out button
 - [ ] Remove conversation
 
 #### BUG-FIXES

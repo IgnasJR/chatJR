@@ -11,6 +11,15 @@ body{
   transform: translateX(-105%);
 }
 
+.closed-msg-header{
+  transition: width 0.3s ease-in-out;
+  width: 100%;
+}
+.open-msg-header{
+  transition: width 0.3s ease-in-out;
+  width: 84%;
+}
+
 .open-chat {
   transition: margin-left 0.3s ease-in-out;
 }
@@ -188,7 +197,6 @@ form{
   }
 }
 .msg-header {
-  width: 100%;
   height: auto;
   border-bottom: none;
   display: inline-block;

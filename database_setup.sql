@@ -1,5 +1,5 @@
 CREATE TABLE
-    Conversationstest (
+    Conversations (
         conversation_id INT PRIMARY KEY AUTO_INCREMENT,
         user1_id INT NOT NULL,
         user2_id INT NOT NULL,
