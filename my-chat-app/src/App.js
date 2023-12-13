@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Login from "./Login";
 import Chat from "./Chat";
@@ -7,8 +8,6 @@ import CryptoJS from "crypto-js";
 function App() {
   let [currentUserId, setCurrentUserId] = useState();
   const [conversations, setConversations] = useState([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -17,6 +16,7 @@ function App() {
     setMessages([]);
     setSelectedUser(userId);
   };
+  const [isLoading, setIsLoading] = useState(true);
 
   const connectionOptions = {
     "force new connection": true,
@@ -59,6 +59,7 @@ function App() {
   };
 
   const fetchConversations = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
@@ -78,9 +79,11 @@ function App() {
     } catch (error) {
       console.error("Error:", error);
     }
+    setIsLoading(false);
   };
 
   const handleAddConversation = async (newUserInput) => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
@@ -112,9 +115,11 @@ function App() {
     } catch (error) {
       console.error("Error:", error);
     }
+    setIsLoading(false);
   };
 
   const fetchMessages = async (recipientId) => {
+    setIsLoading(true);
     try {
       if (recipientId) {
         let url = `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${recipientId}`;
@@ -145,6 +150,7 @@ function App() {
     } catch (error) {
       console.error("Error:", error);
     }
+    setIsLoading(false);
   };
 
   const handleSendMessage = async () => {
@@ -192,6 +198,7 @@ function App() {
   };
 
   const handleLogin = async (username, password) => {
+    setIsLoading(true);
     var algo = CryptoJS.algo.SHA256.create();
     algo.update(password, "utf-8");
     algo.update(CryptoJS.SHA256(username), "utf-8");
@@ -214,14 +221,13 @@ function App() {
       if (response.ok) {
         setToken(data.token);
         setCurrentUserId(data.userId);
-        setUsername("");
-        setPassword("");
       } else {
         console.error(data.error);
       }
     } catch (error) {
       console.error("Error:", error);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -241,6 +247,7 @@ function App() {
           handleSendMessage={handleSendMessage}
           handleUserSelection={handleUserSelection}
           fetchMessages={fetchMessages}
+          isLoading={isLoading}
         />
       ) : (
         <Login handleLogin={handleLogin} />
