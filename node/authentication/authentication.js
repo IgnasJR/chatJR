@@ -6,9 +6,11 @@ const verifyJwt = (req) => {
   const token = req.replace('Bearer ', '');
   try {
     const decoded = jwt.verify(token, jwtSecretKey);
-    // if (!decoded.userId.match('^[0-9]+$')) return null;
+    if (decoded.iat > Date.now() / 1000 + 60 * 60 * 24) {
+      return null;
+    }
     return decoded.userId;
-  } catch (err) {
+  } catch (error) {
     return null;
   }
 };
