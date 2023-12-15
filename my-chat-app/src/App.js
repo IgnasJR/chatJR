@@ -12,6 +12,10 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
+  const [privacy, setPrivacy] = useState(false);
+  const handleSetPrivacy = () => {
+    setPrivacy(!privacy);
+  };
   const handleUserSelection = (userId) => {
     setMessages([]);
     setSelectedUser(userId);
@@ -38,6 +42,7 @@ function App() {
         socket.emit("authenticate", {
           token: token,
           conversationId: selectedUser,
+          isPrivate: privacy,
         });
         socket.on("message", function (messageContent) {
           setMessages((prevMessages) => [...prevMessages, messageContent]);
@@ -248,6 +253,9 @@ function App() {
           handleUserSelection={handleUserSelection}
           fetchMessages={fetchMessages}
           isLoading={isLoading}
+          setPrivacy={setPrivacy}
+          privacy={privacy}
+          handleSetPrivacy={handleSetPrivacy}
         />
       ) : (
         <Login handleLogin={handleLogin} />

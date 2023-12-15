@@ -2,7 +2,6 @@ const { verifyJwt } = require('./authentication');
 
 const anonymousRoutes = ['/api/login', '/api/register'];
 
-// eslint-disable-next-line no-unused-vars
 const authMiddleware = async (req, res, next) => {
   if (anonymousRoutes.includes(req.path)) {
     next();

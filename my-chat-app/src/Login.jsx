@@ -16,7 +16,6 @@ function Login({ handleLogin }) {
   };
 
   const handleLoginClick = (e) => {
-    // Call the handleLogin function passed from App.js
     e.preventDefault();
     handleLogin(username, password);
   };
