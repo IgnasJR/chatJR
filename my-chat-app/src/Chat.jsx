@@ -115,7 +115,7 @@ function Chat({
           {messages.map((message, index) => (
             <li key={message.message_id} className={`message-item `}>
             <div className="message-sender" ref={index === 0 ? lastMessageRef : null}>{message.sender_name}</div>
-            <div className={`message-content ${message.sender_id === currentUserId ? 'self-message' : 'other-message'}`}>
+            <div className={`message-content ${message.sender_id === currentUserId ? !privacy ? 'self-message self-public-message' : 'self-message self-private-message' : !privacy ? 'other-message other-public-message' : 'other-message other-private-message'}`}>
               {message.message_content}
               
             </div>

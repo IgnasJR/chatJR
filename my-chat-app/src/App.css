@@ -367,14 +367,29 @@ h2 {
 }
 
 .self-message {
-  background-color: #007bff;
-  color: #fff;
-  border-color: #007bff;
   margin-left: auto;
 }
 
-.other-message {
+.self-public-message {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.other-public-message {
   color: #212529;
+  background-color: #ccc;
   border-color: #ccc;
+}
+
+.self-private-message {
+  background-color: #610b66;
+  border-color: #610b66;
+  color: white;
+}
+
+.other-private-message {
+  background-color: #b999d9;
+  border-color: #b999d9;
 }
 

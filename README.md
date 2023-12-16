@@ -14,10 +14,11 @@
 - [x] Time-out for tokens
 - [ ] Remove conversation
 - [ ] New styles for 'secret' messages
-- [ ] Button to enter 'secret' mode
+- [x] Button to enter 'secret' mode
 - [ ] Implementing E2EE communication using sockets (without storing the messages in the database)
 
 #### BUG-FIXES
 
 - [x] When a user reselects a conversation, lastMessageId doesnt get cleared
 - [x] User is able to send an empty message
+- [ ] Selecting the same user while the messages are still loading causes the loading to stop
