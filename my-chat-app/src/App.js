@@ -5,6 +5,8 @@ import Chat from "./Chat";
 import io from "socket.io-client";
 import CryptoJS from "crypto-js";
 
+let loadedLastMessage = false;
+
 function App() {
   let [currentUserId, setCurrentUserId] = useState();
   const [conversations, setConversations] = useState([]);
@@ -15,9 +17,12 @@ function App() {
   const [privacy, setPrivacy] = useState(false);
   const handleSetPrivacy = () => {
     setPrivacy(!privacy);
+    loadedLastMessage = false;
+    !privacy ? setMessages([]) : fetchMessages();
   };
   const handleUserSelection = (userId) => {
     setMessages([]);
+    loadedLastMessage = false;
     setSelectedUser(userId);
   };
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +69,7 @@ function App() {
   };
 
   const fetchConversations = async () => {
+    // if (loadedLastMessage) return;
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -123,11 +129,12 @@ function App() {
     setIsLoading(false);
   };
 
-  const fetchMessages = async (recipientId) => {
+  const fetchMessages = async () => {
+    if (loadedLastMessage) return;
     setIsLoading(true);
     try {
-      if (recipientId) {
-        let url = `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${recipientId}`;
+      if (selectedUser) {
+        let url = `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${selectedUser}`;
 
         if (messages.length > 0) {
           url += `?lastMessageId=${messages[0].message_id}`;
@@ -144,7 +151,11 @@ function App() {
           if (data.length > 0) {
             setMessages((prevMessages) => [...data, ...prevMessages]);
           } else {
-            console.log("No messages have been received");
+            loadedLastMessage = true;
+            console.log(
+              "No messages have been received, last message is ",
+              messages[0].message_id
+            );
           }
         } else {
           console.error("Error:", data.error);
@@ -155,6 +166,7 @@ function App() {
     } catch (error) {
       console.error("Error:", error);
     }
+
     setIsLoading(false);
   };
 

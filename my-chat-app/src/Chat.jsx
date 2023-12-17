@@ -39,8 +39,7 @@ function Chat({
   const handleIntersection = (entries) => {
     const entry = entries[0];
     if (entry.isIntersecting && isObserving) {
-      fetchMessages(messages[0].message_id);
-      console.log(messages[0].message_id);
+      fetchMessages();
     }
     else isObserving = true;
   };

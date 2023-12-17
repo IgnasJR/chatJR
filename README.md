@@ -9,7 +9,7 @@
 - [x] Loading more messages on scroll up
 - [ ] Adding users using their username, instead of their user_id
 - [ ] Adding alerts (sweetalert)
-- [ ] If no messages on appear on scroll up, stop requesting
+- [x] If no messages on appear on scroll up, stop requesting
 - [x] Log out button
 - [x] Time-out for tokens
 - [ ] Remove conversation
