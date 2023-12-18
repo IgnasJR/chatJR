@@ -1,5 +1,5 @@
 body{
-  background: linear-gradient(90deg, rgba(54,57,62,1) 0%, rgba(59,90,157,1) 100%);
+  background:	#282b30;
   size: 0cap;
 }
 
@@ -26,12 +26,12 @@ body{
 
 .closed-chat {
   transition: margin-left 0.3s ease-in-out;
+  transition: margin-left 0.3s ease-in-out;
   margin-left: 0% !important; 
 }
 
 .container {
-  background: rgb(54,57,62);
-  background: linear-gradient(90deg, rgba(54,57,62,1) 0%, rgba(59,90,157,1) 100%);
+  background: 	#282b30;
   display: flex;
   justify-content: left;
   height: 100vh;
@@ -103,6 +103,7 @@ body{
   display: inline;
   bottom:0;
   position: fixed;
+  width: 100%;
 }
 
 .input-container {
@@ -111,7 +112,7 @@ body{
   width: 100%;
   flex-wrap: nowrap;
   text-align: center;
-  background-color: rgb(66, 59, 92);;
+  background-color: #36393e;;
 }
 
 .message-container {
@@ -133,27 +134,21 @@ body{
 }
 
 .form-input {
-  flex: 1;
   padding-bottom: 8px;
   padding-top: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 60%;
-  max-height: 5%;
+  width: 65%;
 }
 
 .form-button{
-  flex: 1;
-  padding: 8px;
-  margin-right: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 30%;
+  padding-bottom: 8px;
+  padding-top: 8px;
+  width: 35%;
+  text-align: center;
+  background-color: #7289da;
 }
 form{
   display: flex;
   width: 100%;
-
   flex-direction: row-reverse;
 }
 
@@ -166,27 +161,22 @@ form{
 
 
 .send-textbox {
-  flex: 1;
-  padding: 8px 12px;
+  width: 100%;
+  padding-left: 10px;
+  padding:8px;
   border: 1px solid #484b51;
   border-radius: 5px;
   background-color: #202225;
   color: #fff;
 }
+.send-button{
+  padding:8px;
+  background-color: #7289da;
+}
 
 .header-content {
   display: flex;
   align-items: center;
-}
-
-.send-button {
-  padding: 8px 16px;
-  background-color: #7289da;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  text-align: left;
 }
 @media screen and (max-width: 700px) {
   .open-chat {
@@ -199,15 +189,14 @@ form{
   }
   .send-textbox {
     flex: 1;
-
     background-color: #202225;
     color: #fff;
   }
   .send-button {
+    visibility: visible;
     background-color: #7289da;
     color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease;
     text-align: center;
     border-radius: 100%;
     font-weight: 900;
@@ -220,7 +209,7 @@ form{
   height: auto;
   border-bottom: none;
   display: inline-block;
-  background-color: rgb(66, 59, 92);
+  background-color: 	#36393e;
   position: fixed;
 }
 
@@ -253,12 +242,6 @@ form{
 
 h2 {
   margin-bottom: 10px;
-}
-
-.form-input-register[type="text"],
-.form-input-register[type="password"] {
-  width: 96%;
-  padding: 2%;
 }
 
 .register-form {
@@ -313,7 +296,7 @@ h2 {
   justify-content: flex-start;
   white-space:nowrap;
   width: 16%;
-  background-color: rgb(66, 59, 92);
+  background-color: #36393e;
   transition: transform 0.3s ease-in-out;
   height: 100%;
   position: fixed;
@@ -332,16 +315,16 @@ h2 {
   cursor: pointer;
 }
 .user-item:hover{
-  background-color: rgb(64, 56, 87);
+  background-color: 	#424549;
 }
 
 .message-list {
   list-style: none;
   padding: 5px;
   padding-left: 10px;
-  margin-bottom: 3%;
-  height: 85%;
-  margin-top: 7%;
+  margin-bottom: auto;
+  height: -webkit-fill-available;
+  margin-top: 4%;
   overflow-y: scroll;
   overflow: auto;
 }
@@ -356,14 +339,6 @@ h2 {
   padding: 10px 15px;
   border-radius: 10px;
   word-wrap: break-word;
-  border: 1px solid #ccc;
-  background-color: #fff;
-}
-
-.sender-info {
-  font-size: 12px;
-  color: #868e96;
-  margin-bottom: 5px;
 }
 
 .self-message {
@@ -384,12 +359,10 @@ h2 {
 
 .self-private-message {
   background-color: #610b66;
-  border-color: #610b66;
   color: white;
 }
 
 .other-private-message {
   background-color: #b999d9;
-  border-color: #b999d9;
 }
 

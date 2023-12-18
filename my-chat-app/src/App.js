@@ -18,12 +18,13 @@ function App() {
   const handleSetPrivacy = () => {
     setPrivacy(!privacy);
     loadedLastMessage = false;
-    !privacy ? setMessages([]) : fetchMessages();
   };
   const handleUserSelection = (userId) => {
+    if (userId === selectedUser) return;
     setMessages([]);
     loadedLastMessage = false;
     setSelectedUser(userId);
+    fetchMessages();
   };
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,7 +48,6 @@ function App() {
         socket.emit("authenticate", {
           token: token,
           conversationId: selectedUser,
-          isPrivate: privacy,
         });
         socket.on("message", function (messageContent) {
           setMessages((prevMessages) => [...prevMessages, messageContent]);
@@ -157,8 +157,6 @@ function App() {
               messages[0].message_id
             );
           }
-        } else {
-          console.error("Error:", data.error);
         }
       } else {
         setMessages([]);
@@ -171,13 +169,16 @@ function App() {
   };
 
   const handleSendMessage = async () => {
+    if (privacy) {
+      SendSocketMessage();
+      setNewMessage("");
+      return;
+    }
     try {
       if (!selectedUser) {
-        console.error("No conversation selected");
-        return;
+        throw new Error("No conversation selected");
       } else if (newMessage === "") {
-        console.error("No message to send");
-        return;
+        throw new Error("No message to send");
       }
       const response = await fetch(
         `${window.location.protocol}//${window.location.hostname}:3001/api/messages`,
@@ -196,22 +197,23 @@ function App() {
 
       const data = await response.json();
       if (response.ok) {
-        socket.emit("message", {
-          token: token,
-          message_id: data,
-          conversationId: selectedUser,
-          sender_id: null,
-          message_Content: newMessage,
-          creted_at: null,
-        });
-
+        SendSocketMessage();
         setNewMessage("");
-      } else {
-        console.error(data.error);
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error(error);
     }
+  };
+
+  const SendSocketMessage = async () => {
+    socket.emit("message", {
+      token: token,
+      conversationId: selectedUser,
+      sender_id: null,
+      message_Content: newMessage,
+      created_at: null,
+      isPrivate: privacy,
+    });
   };
 
   const handleLogin = async (username, password) => {
