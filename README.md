@@ -7,13 +7,13 @@
 - [x] Fixing UI for mobile
 - [x] Loading a limited number of messages at a time
 - [x] Loading more messages on scroll up
-- [ ] Adding users using their username, instead of their user_id
+- [x] Adding users using their username, instead of their user_id
 - [ ] Adding alerts (sweetalert)
 - [x] If no messages on appear on scroll up, stop requesting
 - [x] Log out button
 - [x] Time-out for tokens
 - [ ] Remove conversation
-- [ ] New styles for 'secret' messages
+- [x] New styles for 'secret' messages
 - [x] Button to enter 'secret' mode
 - [ ] Implementing E2EE communication using sockets (without storing the messages in the database)
 
@@ -21,4 +21,4 @@
 
 - [x] When a user reselects a conversation, lastMessageId doesnt get cleared
 - [x] User is able to send an empty message
-- [ ] Selecting the same user while the messages are still loading causes the loading to stop
+- [x] Selecting the same user while the messages are still loading causes the loading to stop
