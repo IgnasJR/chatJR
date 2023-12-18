@@ -10,6 +10,7 @@ const hashPassword = (username, password) => {
 };
 
 const encryptMessage = (message, publicKey) => {
+  console.log(message, publicKey);
   const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
   const encrypted = forge.util.encode64(
     publicKeyObj.encrypt(message, "RSA-OAEP", {
@@ -30,6 +31,18 @@ const decryptMessage = (message, privateKey) => {
   );
   return decrypted;
 };
+const decryptPrivateKey = (privateKey, password) => {
+  const decryptedPrivateKey = CryptoJS.AES.decrypt(
+    privateKey,
+    password
+  ).toString(CryptoJS.enc.Utf8);
+  return decryptedPrivateKey;
+};
 
-const crypto = { hashPassword, encryptMessage, decryptMessage };
+const crypto = {
+  hashPassword,
+  encryptMessage,
+  decryptMessage,
+  decryptPrivateKey,
+};
 export default crypto;

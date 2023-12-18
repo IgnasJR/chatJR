@@ -20,10 +20,16 @@ const setupExpress = (app) => {
   // Get all users you can talk to
   app.get('/api/conversations', (req, res) => {
     const userId = verifyJwt(req.headers.authorization);
-    const query = `SELECT conversation_id, (CASE WHEN user1_id = ? 
-                  THEN (SELECT username FROM Users WHERE id = user2_id) 
-                  ELSE (SELECT username FROM Users WHERE id = user1_id) END) AS username
-                  FROM Conversations WHERE ? IN (user1_id, user2_id)`;
+    const query = `
+      SELECT 
+        C.conversation_id, 
+        U.username, 
+        U.public_key
+      FROM Conversations AS C
+      INNER JOIN Users AS U ON (C.user1_id = U.id OR C.user2_id = U.id)
+      WHERE ? IN (C.user1_id, C.user2_id)
+        AND U.id <> ?
+    `;
 
     connection.query(query, [userId, userId], (err, results) => {
       if (err) {

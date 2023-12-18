@@ -15,10 +15,13 @@
 - [ ] Remove conversation
 - [x] New styles for 'secret' messages
 - [x] Button to enter 'secret' mode
-- [ ] Implementing E2EE communication using sockets (without storing the messages in the database)
+- [x] Implementing E2EE communication using sockets (without storing the messages in the database)
 
 #### BUG-FIXES
 
 - [x] When a user reselects a conversation, lastMessageId doesnt get cleared
 - [x] User is able to send an empty message
 - [x] Selecting the same user while the messages are still loading causes the loading to stop
+- [ ] Extremely long messages arent displayed correctly
+- [ ] when there arent many messages, the pagination breaks
+- [ ] the sender has two messages (both encrypted an unencrypted) added when sending in secret mode

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable operator-linebreak */
 const { connection } = require('./mysql');
 

@@ -5,6 +5,8 @@ import Chat from "./Chat";
 import io from "socket.io-client";
 import crypto from "./crypto";
 let loadedLastMessage = false;
+let private_key;
+let public_key;
 
 function App() {
   let [currentUserId, setCurrentUserId] = useState();
@@ -18,10 +20,11 @@ function App() {
     setPrivacy(!privacy);
     loadedLastMessage = false;
   };
-  const handleUserSelection = (userId) => {
+  const handleUserSelection = (userId, key) => {
     if (userId === selectedUser) return;
     setMessages([]);
     loadedLastMessage = false;
+    public_key = key;
     setSelectedUser(userId);
     fetchMessages();
   };
@@ -49,8 +52,15 @@ function App() {
           conversationId: selectedUser,
         });
         socket.on("message", function (messageContent) {
+          if (currentUserId !== messageContent.sender_id)
+            if (messageContent.isPrivate) {
+              messageContent.message_content = crypto.decryptMessage(
+                messageContent.message_content,
+                private_key
+              );
+            }
+
           setMessages((prevMessages) => [...prevMessages, messageContent]);
-          console.log("Updated Messages:", messages);
         });
       }
       fetchConversations();
@@ -68,7 +78,6 @@ function App() {
   };
 
   const fetchConversations = async () => {
-    // if (loadedLastMessage) return;
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -169,7 +178,8 @@ function App() {
 
   const handleSendMessage = async () => {
     if (privacy) {
-      SendSocketMessage();
+      const encryptedMessage = crypto.encryptMessage(newMessage, public_key);
+      SendSocketMessage(encryptedMessage);
       setNewMessage("");
       return;
     }
@@ -193,8 +203,6 @@ function App() {
           }),
         }
       );
-
-      const data = await response.json();
       if (response.ok) {
         SendSocketMessage();
         setNewMessage("");
@@ -205,14 +213,22 @@ function App() {
   };
 
   const SendSocketMessage = async () => {
-    socket.emit("message", {
+    let message = {
       token: token,
       conversationId: selectedUser,
       sender_id: null,
-      message_Content: newMessage,
+      message_content: privacy
+        ? crypto.encryptMessage(newMessage, public_key)
+        : newMessage,
       created_at: null,
       isPrivate: privacy,
-    });
+    };
+
+    socket.emit("message", message);
+    message.message_content = newMessage;
+    message.sender_id = currentUserId;
+    console.log("Message sent:", message);
+    messages.push(message);
   };
 
   const handleLogin = async (username, password) => {
@@ -234,6 +250,7 @@ function App() {
       if (response.ok) {
         setToken(data.token);
         setCurrentUserId(data.userId);
+        private_key = crypto.decryptPrivateKey(data.privateKey, password);
       } else {
         console.error(data.error);
       }

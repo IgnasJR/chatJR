@@ -76,7 +76,7 @@ function Chat({
             <li className='user-item'
               key={conversation.id}
               onClick={() => {
-                handleUserSelection(conversation.conversation_id);
+                handleUserSelection(conversation.conversation_id, conversation.public_key);
                 setUsername(conversation.username);
               }}
             >
