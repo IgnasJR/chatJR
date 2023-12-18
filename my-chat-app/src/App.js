@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import Login from "./Login";
 import Chat from "./Chat";
 import io from "socket.io-client";
-import CryptoJS from "crypto-js";
-
+import crypto from "./crypto";
 let loadedLastMessage = false;
 
 function App() {
@@ -218,12 +217,7 @@ function App() {
 
   const handleLogin = async (username, password) => {
     setIsLoading(true);
-    var algo = CryptoJS.algo.SHA256.create();
-    algo.update(password, "utf-8");
-    algo.update(CryptoJS.SHA256(username), "utf-8");
-    var hash = algo.finalize().toString(CryptoJS.enc.Base64);
-    console.log(hash);
-
+    const hash = crypto.hashPassword(username, password);
     try {
       const response = await fetch(
         `${window.location.protocol}//${window.location.hostname}:3001/api/login`,

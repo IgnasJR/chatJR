@@ -181,6 +181,7 @@ form{
 @media screen and (max-width: 700px) {
   .open-chat {
     transition: margin-left 0.3s ease-in-out;
+    
     margin-left: 60% !important;
     width: 40% !important;
   }

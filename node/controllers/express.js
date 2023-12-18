@@ -1,18 +1,19 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable no-console */
 
 const { createJwt, verifyJwt } = require('../authentication/authentication');
 const { connection } = require('../database/mysql');
-const { getConversationsIdsForUsers, createConversation } = require('../database/conversations');
-
-class DomainError extends Error {}
+const { createConversation } = require('../database/conversations');
 
 const setupExpress = (app) => {
-  app.post('/api/conversations', async ({ body: { otherUserId }, userId }) => {
-    const existingConversations = await getConversationsIdsForUsers({ userId, otherUserId });
-    if (existingConversations.length > 0) {
-      throw new DomainError('Conversation already exists');
+  app.post('/api/conversations', async (req, res) => {
+    const userId = verifyJwt(req.headers.authorization);
+    const { username } = req.body;
+    const result = await createConversation({ userId, username });
+    if (result === 'Conversation already exists') {
+      res.status(400).json({ error: 'Conversation already exists' });
     } else {
-      await createConversation({ userId, otherUserId });
+      res.status(201).json({ error: 'Conversation added successfully' });
     }
   });
 
@@ -48,7 +49,7 @@ const setupExpress = (app) => {
         const user = results[0];
         if (user.password === password) {
           const token = createJwt(user);
-          res.json({ userId: user.id, token });
+          res.json({ userId: user.id, token, privateKey: user.private_key });
         } else {
           res.status(401).json({ error: 'Invalid username or password' });
         }
@@ -113,9 +114,9 @@ const setupExpress = (app) => {
   });
 
   app.post('/api/register', (req, res) => {
-    const { username, password, publicKey } = req.body;
-    const query = 'INSERT INTO Users (username, password, public_key) VALUES (?, ?, ?)';
-    connection.query(query, [username, password, publicKey], (err, result) => {
+    const { username, password, publicKey, privateKey } = req.body;
+    const query = 'INSERT INTO Users (username, password, public_key, private_key) VALUES (?, ?, ?, ?)';
+    connection.query(query, [username, password, publicKey, privateKey], (err, result) => {
       if (err) {
         console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error registering a user' });

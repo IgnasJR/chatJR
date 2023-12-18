@@ -1,3 +1,4 @@
+/* eslint-disable operator-linebreak */
 const { connection } = require('./mysql');
 
 const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
@@ -16,19 +17,31 @@ const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
   return conversationsIds;
 };
 
-const createConversation = async ({ userId, otherUserId }) => {
-  const conversationQuery = 'INSERT INTO Conversations (user1_id, user2_id) VALUES (?, ?)';
-  const newId = await new Promise((resolve, reject) => {
-    connection.query(conversationQuery, [userId, otherUserId], (err, result) => {
+const createConversation = async ({ userId, username }) => {
+  const conversationQuery = `
+    INSERT INTO Conversations (user1_id, user2_id)
+    SELECT ?, U.id
+    FROM Users AS U
+    WHERE U.username = ?
+    AND NOT EXISTS (
+        SELECT 1
+        FROM Conversations AS C
+        WHERE (C.user1_id = ? AND C.user2_id = U.id)
+           OR (C.user1_id = U.id AND C.user2_id = ?)
+    );
+  `;
+
+  return new Promise((resolve, reject) => {
+    connection.query(conversationQuery, [userId, username, userId, userId], (err, result) => {
       if (err) {
         reject(new Error('Error adding conversation'));
+      } else if (result && result.affectedRows === 0) {
+        resolve('Conversation already exists');
       } else {
         resolve(result.insertId);
       }
     });
   });
-
-  return newId;
 };
 
 module.exports = { createConversation, getConversationsIdsForUsers };

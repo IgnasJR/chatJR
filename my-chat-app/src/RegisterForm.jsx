@@ -10,29 +10,29 @@ const RegisterForm = ({ isOpen, onClose }) => {
   const handleRegister = async () => {
     try {
       // Generating RSA key pair
-      let keyPair = forge.pki.rsa.generateKeyPair(2048);
-      let publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
-      let privateKey = forge.pki.privateKeyToPem(keyPair.privateKey);
-      //publicKey = publicKey.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\r\n/g, '');
+      const keyPair = forge.pki.rsa.generateKeyPair({ bits: 2048 });
+      const publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
+      const privateKey = forge.pki.privateKeyToPem(keyPair.privateKey);
+
+      //Encrypting the private key with the password, to store in the database
+      const encryptedPrivateKey = CryptoJS.AES.encrypt(privateKey, password).toString();
 
       // Hashing the username to use as a salt, then hashing the password with the salt
       let algo = CryptoJS.algo.SHA256.create();
       algo.update(password, 'utf-8');
       algo.update(CryptoJS.SHA256(username), 'utf-8');
       password = algo.finalize().toString(CryptoJS.enc.Base64);
-      //console.log(password);
 
       const response = await fetch('http://localhost:3001/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password, publicKey }),
+        body: JSON.stringify({ username, password, publicKey, privateKey: encryptedPrivateKey }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        //localStorage.setItem('privateKey', privateKey);
         onClose();
       } else {
         console.error(data.error);

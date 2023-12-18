@@ -20,7 +20,7 @@ const setupSockets = (socket) => {
     console.log('User', userId, 'has joined', conversationId);
     socket.join(conversationId);
   });
-  socket.on('message', ({ token, message_id, conversationId, message_Content }) => {
+  socket.on('message', ({ token, message_id, conversationId, message_Content, isPrivate }) => {
     const userId = verifyJwt(token);
     console.log('User', userId, 'sent a message: ', message_Content);
     io.to(conversationId).emit('message', {
@@ -29,8 +29,9 @@ const setupSockets = (socket) => {
       sender_id: userId,
       message_content: message_Content,
       created_at: null,
+      isPrivate,
     });
-    console.log('Message:', message_Content, 'emitted');
+    console.log('Message:', message_Content, 'emitted', 'to', conversationId, isPrivate ? 'privately' : 'publicly');
   });
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
