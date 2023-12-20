@@ -78,7 +78,7 @@ const setupExpress = (app) => {
         ON M.conversation_id = C.conversation_id 
         WHERE M.conversation_id = ? AND (C.user1_id = ? 
         OR C.user2_id = ?) AND M.message_id > ? 
-        ORDER BY M.message_id DESC LIMIT 30;`;
+        ORDER BY M.message_id ASC LIMIT 30;`;
         break;
       default:
         query = `

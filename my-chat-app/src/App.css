@@ -334,6 +334,7 @@ h2 {
   display: flex;
   margin-bottom: 10px;
   justify-content: flex-start;
+  word-break: break-all;
 }
 
 .message-content {

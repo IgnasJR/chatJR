@@ -5,10 +5,10 @@ import Chat from "./Chat";
 import io from "socket.io-client";
 import crypto from "./crypto";
 let loadedLastMessage = false;
-let private_key;
-let public_key;
 
 function App() {
+  let [private_key, setPrivateKey] = useState("");
+  let [public_key, setPublicKey] = useState("");
   let [currentUserId, setCurrentUserId] = useState();
   const [conversations, setConversations] = useState([]);
   const [token, setToken] = useState("");
@@ -24,7 +24,7 @@ function App() {
     if (userId === selectedUser) return;
     setMessages([]);
     loadedLastMessage = false;
-    public_key = key;
+    setPublicKey(key);
     setSelectedUser(userId);
     fetchMessages();
   };
@@ -52,13 +52,14 @@ function App() {
           conversationId: selectedUser,
         });
         socket.on("message", function (messageContent) {
-          if (currentUserId !== messageContent.sender_id)
-            if (messageContent.isPrivate) {
-              messageContent.message_content = crypto.decryptMessage(
-                messageContent.message_content,
-                private_key
-              );
-            }
+          console.log("Message received:", messageContent);
+          if (currentUserId === messageContent.sender_id) return;
+          if (messageContent.isPrivate) {
+            messageContent.message_content = crypto.decryptMessage(
+              messageContent.message_content,
+              private_key
+            );
+          }
 
           setMessages((prevMessages) => [...prevMessages, messageContent]);
         });
@@ -225,8 +226,11 @@ function App() {
     };
 
     socket.emit("message", message);
-    message.message_content = newMessage;
-    message.sender_id = currentUserId;
+    message = {
+      ...message,
+      message_content: newMessage,
+      sender_id: currentUserId,
+    };
     console.log("Message sent:", message);
     messages.push(message);
   };
@@ -250,7 +254,7 @@ function App() {
       if (response.ok) {
         setToken(data.token);
         setCurrentUserId(data.userId);
-        private_key = crypto.decryptPrivateKey(data.privateKey, password);
+        setPrivateKey(crypto.decryptPrivateKey(data.privateKey, password));
       } else {
         console.error(data.error);
       }
