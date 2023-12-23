@@ -25,13 +25,4 @@
 - [ ] Adding alerts (sweetalert)
 - [x] Log out button
 - [x] Time-out for tokens
-- [ ] Remove conversation
-
-### BUG-FIXES
-
-- [x] When a user reselects a conversation, lastMessageId doesnt get cleared
-- [x] User is able to send an empty message
-- [x] Selecting the same user while the messages are still loading causes the loading to stop
-- [x] Extremely long messages arent displayed correctly
-- [ ] when there arent many messages, the pagination breaks
-- [x] the sender has two messages (both encrypted an unencrypted) added when sending in secret mode
+- [x] Remove conversation

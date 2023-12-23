@@ -60,12 +60,14 @@ const RegisterForm = ({ isOpen, onClose }) => {
           onChange={(e) => setPassword(e.target.value)}
           className="form-input-register"
         />
-        <button onClick={handleRegister} className="form-button-green">
-          Register
-        </button>
-        <button onClick={onClose} className="form-button-red">
-          Cancel
-        </button>
+          <div>
+            <button onClick={handleRegister} className="form-button-green">
+            Register
+            </button>
+            <button onClick={onClose} className="form-button-red">
+            Cancel
+            </button>
+          </div>
       </div>
     </Modal>
   );

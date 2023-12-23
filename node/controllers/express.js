@@ -3,7 +3,7 @@
 
 const { createJwt, verifyJwt } = require('../authentication/authentication');
 const { connection } = require('../database/mysql');
-const { createConversation } = require('../database/conversations');
+const { createConversation, removeConversation } = require('../database/conversations');
 
 const setupExpress = (app) => {
   app.post('/api/conversations', async (req, res) => {
@@ -13,7 +13,19 @@ const setupExpress = (app) => {
     if (result === 'Conversation already exists') {
       res.status(400).json({ error: 'Conversation already exists' });
     } else {
-      res.status(201).json({ error: 'Conversation added successfully' });
+      res.status(201).json('Conversation added successfully');
+    }
+  });
+  app.delete('/api/conversations', async (req, res) => {
+    const userId = verifyJwt(req.headers.authorization);
+    const { conversationId } = req.body;
+    const result = await removeConversation({ userId, conversationId });
+    if (result === Error('Error removing conversation')) {
+      res.status(400).json({ error: result.message });
+    } else if (result === Error('Conversation cannot be removed')) {
+      res.status(403).json({ error: result.message });
+    } else {
+      res.status(201).json('Conversation added successfully');
     }
   });
 
@@ -88,6 +100,11 @@ const setupExpress = (app) => {
         OR C.user2_id = ?) AND M.message_id < ? 
         ORDER BY M.message_id ASC LIMIT 30;`;
     }
+
+    console.log(lastMessageId);
+    const fullQuery = connection.format(query, [conversationId, userId, userId, lastMessageId]);
+
+    console.log('Full Query:', fullQuery);
 
     connection.query(query, [conversationId, userId, userId, lastMessageId], (err, results) => {
       if (err) {

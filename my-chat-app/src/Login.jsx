@@ -32,7 +32,6 @@ function Login({ handleLogin }) {
     <div className='login'>
       <form className='form-login' onSubmit={handleLoginClick}>
       <h2>Welcome to chatJR 👋</h2>
-      <p>Username</p>
       <input
         type="text"
         placeholder="Username"
@@ -41,7 +40,6 @@ function Login({ handleLogin }) {
         name="username"
         className="form-input"
       />
-      <p>Password</p>
       <input
         type="password"
         placeholder="Password"
