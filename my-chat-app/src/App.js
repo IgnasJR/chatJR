@@ -28,7 +28,7 @@ function App() {
     setSelectedUser(userId);
     fetchMessages();
   };
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const connectionOptions = {
     "force new connection": true,
@@ -235,35 +235,6 @@ function App() {
     messages.push(message);
   };
 
-  const handleLogin = async (username, password) => {
-    setIsLoading(true);
-    const hash = crypto.hashPassword(username, password);
-    try {
-      const response = await fetch(
-        `${window.location.protocol}//${window.location.hostname}:3001/api/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password: hash }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        setToken(data.token);
-        setCurrentUserId(data.userId);
-        setPrivateKey(crypto.decryptPrivateKey(data.privateKey, password));
-      } else {
-        console.error(data.error);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    setIsLoading(false);
-  };
-
   return (
     <div className="container">
       {token ? (
@@ -287,7 +258,16 @@ function App() {
           handleSetPrivacy={handleSetPrivacy}
         />
       ) : (
-        <Login handleLogin={handleLogin} />
+        <Login
+          handleLogin
+          setToken={setToken}
+          setCurrentUserId={setCurrentUserId}
+          setPrivateKey={setPrivateKey}
+          setPublicKey={setPublicKey}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          hashPassword={crypto.hashPassword}
+        />
       )}
     </div>
   );

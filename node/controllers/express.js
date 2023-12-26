@@ -1,5 +1,4 @@
 /* eslint-disable object-curly-newline */
-/* eslint-disable no-console */
 
 const { createJwt, verifyJwt } = require('../authentication/authentication');
 const { connection } = require('../database/mysql');
@@ -45,10 +44,8 @@ const setupExpress = (app) => {
 
     connection.query(query, [userId, userId], (err, results) => {
       if (err) {
-        console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving conversations' });
       } else {
-        console.log('Retrieved conversations for user:', userId);
         res.json(results);
       }
     });
@@ -59,7 +56,6 @@ const setupExpress = (app) => {
     const query = 'SELECT * FROM Users WHERE username = ?';
     connection.query(query, [username], (err, results) => {
       if (err) {
-        console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving user' });
       } else if (results.length === 0) {
         res.status(401).json({ error: 'Invalid username or password' });
@@ -81,7 +77,6 @@ const setupExpress = (app) => {
     const lastMessageId = req.query.lastMessageId || 0;
     const userId = verifyJwt(req.headers.authorization);
 
-    console.log(userId, lastMessageId, conversationId);
     let query;
     switch (lastMessageId) {
       case 0:
@@ -100,18 +95,10 @@ const setupExpress = (app) => {
         OR C.user2_id = ?) AND M.message_id < ? 
         ORDER BY M.message_id ASC LIMIT 30;`;
     }
-
-    console.log(lastMessageId);
-    const fullQuery = connection.format(query, [conversationId, userId, userId, lastMessageId]);
-
-    console.log('Full Query:', fullQuery);
-
     connection.query(query, [conversationId, userId, userId, lastMessageId], (err, results) => {
       if (err) {
-        console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error retrieving messages' });
       } else {
-        console.log(results);
         res.json(results);
       }
     });
@@ -128,7 +115,6 @@ const setupExpress = (app) => {
     const query = 'INSERT INTO Messages (sender_id, conversation_id, message_content, created_at) VALUES (?, ?, ?, ?)';
     connection.query(query, [userId, conversationId, messageContent, new Date()], (err, result) => {
       if (err) {
-        console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error adding message' });
       } else {
         res.json({ id: result.insertId });
@@ -141,10 +127,8 @@ const setupExpress = (app) => {
     const query = 'INSERT INTO Users (username, password, public_key, private_key) VALUES (?, ?, ?, ?)';
     connection.query(query, [username, password, publicKey, privateKey], (err, result) => {
       if (err) {
-        console.error('Error executing MySQL query:', err);
         res.status(500).json({ error: 'Error registering a user' });
       } else {
-        console.log('Added a new user to the database:', result);
         res.json({ id: result.insertId });
       }
     });

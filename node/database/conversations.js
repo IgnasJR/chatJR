@@ -7,7 +7,6 @@ const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
   const conversationsIds = await new Promise((resolve, reject) => {
     connection.query(checkQuery, [userId, otherUserId, otherUserId, userId], (checkErr, checkResults) => {
       if (checkErr) {
-        console.error('Error executing MySQL query:', checkErr);
         reject(new Error('Failed to get conversations'));
       } else {
         resolve(checkResults);
@@ -46,9 +45,13 @@ const createConversation = async ({ userId, username }) => {
 
 const removeConversation = async ({ userId, conversationId }) => {
   const conversationQuery = `
-  DELETE FROM Conversations WHERE 
-  conversation_id = ? AND 
-  (user1_id = ? OR user2_id = ?);
+    DELETE FROM Conversations WHERE 
+    conversation_id = ? AND 
+    (user1_id = ? OR user2_id = ?)
+  `;
+
+  const messagesQuery = `
+    DELETE FROM Messages WHERE conversation_id = ?
   `;
 
   return new Promise((resolve, reject) => {
@@ -58,7 +61,13 @@ const removeConversation = async ({ userId, conversationId }) => {
       } else if (result && result.affectedRows === 0) {
         resolve(new Error('Conversation cannot be removed'));
       } else {
-        resolve(result.insertId);
+        connection.query(messagesQuery, [conversationId], (error, messagesResult) => {
+          if (error) {
+            reject(new Error('Error removing messages'));
+          } else {
+            resolve(messagesResult.insertId);
+          }
+        });
       }
     });
   });

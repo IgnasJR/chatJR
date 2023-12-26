@@ -3,6 +3,33 @@ body{
   size: 0cap;
 }
 
+.error-message-red{
+position: absolute;
+background-color: rgb(211, 73, 73);
+width: 100%;
+left: 0%;
+top: 0%;
+padding: 0em 1.25em 0em 1.25em;
+font-weight: bolder;
+display: flex;
+flex-wrap: nowrap;
+animation-delay: 2.8s;
+animation-duration: 0.3s;
+animation-name: fadeOut;
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }  
+}
+
 .open-sidebar {
   transform: translateX(0);
 }
