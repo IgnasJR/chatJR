@@ -24,7 +24,7 @@ const setupExpress = (app) => {
     } else if (result === Error('Conversation cannot be removed')) {
       res.status(403).json({ error: result.message });
     } else {
-      res.status(201).json('Conversation added successfully');
+      res.status(201).json('Conversation removed successfully');
     }
   });
 

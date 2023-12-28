@@ -16,6 +16,7 @@ flex-wrap: nowrap;
 animation-delay: 2.8s;
 animation-duration: 0.3s;
 animation-name: fadeOut;
+z-index: 1000;
 }
 @keyframes fadeOut {
   0% {

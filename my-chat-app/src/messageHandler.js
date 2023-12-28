@@ -1,4 +1,4 @@
-import "./crypto"; // replace 'crypto-path' with the actual path
+import crypto from "./crypto";
 
 export const handleSendMessage = async (
   privacy,

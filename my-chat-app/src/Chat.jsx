@@ -10,14 +10,14 @@ function Chat({
   newMessage,
   handleSendMessage,
   fetchMessages,
-  isLoading,
   privacy,
   handleSetPrivacy,
   token,
   public_key,
   selectedUser,
   setNewMessage,
-  SendSocketMessage
+  SendSocketMessage,
+  errorHandling
 }) {
   const observer = useRef();
   let isObserving = false;
@@ -39,6 +39,7 @@ function Chat({
   })
 
   const handleDeleteConversation = async (conversationId) => {
+    try {
     const response = await fetch(
       `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
       {
@@ -52,6 +53,15 @@ function Chat({
         }),
       }
     );
+    if (response.ok) {
+      conversations = conversations.filter((conversation) => conversation.conversation_id !== conversationId);
+      setNewUserInput('');
+      messages = [];
+    }
+  }
+  catch (error) {
+    errorHandling(error.message);
+  }
   };
 
   const handleMouseEnter = (conversationId) => {
@@ -95,7 +105,6 @@ function Chat({
 
   return (
     <div className={`chat-container`} style={{ position: 'relative' }}>
-      {isLoading ? <span className="loader" style={{ position: 'absolute', top: '50%', left: '50%' }}></span> : null}
       <div className={`sidebar ${sidebarOpen ? 'open-sidebar' : 'closed-sidebar'}`}>
         <h2 style={{paddingLeft:"0.5 em"}}>Users:</h2>
         <ul className="user-list">

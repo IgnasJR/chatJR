@@ -32,11 +32,15 @@ const decryptMessage = (message, privateKey) => {
   return decrypted;
 };
 const decryptPrivateKey = (privateKey, password) => {
-  const decryptedPrivateKey = CryptoJS.AES.decrypt(
-    privateKey,
-    password
-  ).toString(CryptoJS.enc.Utf8);
-  return decryptedPrivateKey;
+  try {
+    const decryptedPrivateKey = CryptoJS.AES.decrypt(
+      privateKey,
+      password
+    ).toString(CryptoJS.enc.Utf8);
+    return decryptedPrivateKey;
+  } catch (error) {
+    return Error("Unable to decrypt password");
+  }
 };
 
 const crypto = {
