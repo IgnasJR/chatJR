@@ -14,6 +14,10 @@ function Chat({
   privacy,
   handleSetPrivacy,
   token,
+  public_key,
+  selectedUser,
+  setNewMessage,
+  SendSocketMessage
 }) {
   const observer = useRef();
   let isObserving = false;
@@ -81,8 +85,7 @@ function Chat({
 
     const handleSendMessageClick = (e) => {
       e.preventDefault();
-      handleSendMessage();
-    };
+      handleSendMessage(privacy, newMessage, public_key, selectedUser, token, setNewMessage, SendSocketMessage);    };
     const toggleSidebar = () => {
       setSidebarOpen(!sidebarOpen);
     };
