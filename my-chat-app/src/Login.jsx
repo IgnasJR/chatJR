@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import RegisterForm from './RegisterForm';
-
+import crypto from './crypto';
 
 function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, isLoading, errorMessage, errorHandling}) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
