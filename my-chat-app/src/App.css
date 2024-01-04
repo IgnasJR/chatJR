@@ -49,11 +49,11 @@ z-index: 1000;
 
 .open-chat {
   margin-left: 16% !important;
-  transition: margin-right 0.3s ease-in-out;
+  transition: margin-left 0.3s ease-in-out !important;
 }
 
 .closed-chat {
-  transition: margin-left 0.3s ease-in-out;
+  transition: margin-left 0.3s ease-in-out !important;
   margin-left: 0% !important; 
 }
 
@@ -128,6 +128,7 @@ z-index: 1000;
   flex-wrap: nowrap;
   text-align: center;
   background-color: #36393e;
+  max-height: 3em;
 }
 
 .message-container {
@@ -149,23 +150,25 @@ z-index: 1000;
 }
 
 .form-button-user-add{
-  padding: 1em 0em;
+  height: 3em;
+  max-height: 3em;
   width: 35%;
   text-align: center;
-  border-radius: 0.5em;
-
+  border-radius: 10%;
   background-color: #7289da;
+}
+.form-button-user-add:hover{
+  background-color: hsl(227, 58%, 60%);
+  cursor: pointer;
 }
 
 .form-input-user-add {
-  padding-bottom: 1em;
-  padding-top: 1em;
+  max-height: 3em;
+  height: 3em;
   width: 64%;
-  border-radius: 0.5em;
-  border-width: 0cap;
-  border-color: 	#424549;
+  border-radius: 10%;
+  border-width: 0.0em;
   background: 	#424549;
-  margin-top: 2em;
 }
 .form-input {
   padding-bottom: 1em;
@@ -219,9 +222,13 @@ form{
   color: #fff;
 }
 .send-button{
-  padding: 1em 1.5em;
   border-radius: 10%;
   background-color: #7289da;
+  max-width: 3em;
+}
+.send-button:hover{
+  background-color: hsl(227, 58%, 60%);
+  cursor: pointer;
 }
 
 .header-content {
@@ -230,14 +237,14 @@ form{
 }
 @media screen and (max-width: 700px) {
   .open-chat {
-    transition: margin-left 0.3s ease-out;    
+    transition: margin-left 0.3s ease-in-out;
     margin-left: 60% !important;
-    width: 40% !important;
+    /* width: 40% !important; */
   }
   .closed-chat {
-    transition: margin-left 0.3s ease-in-out;    
+    transition: margin-left 0.3s ease-in-out;
     margin-left: 0% !important;
-    width: 100% !important;
+    /* width: 100% !important; */
   }
   .sidebar {
     width: 60% !important;
@@ -248,19 +255,18 @@ form{
     color: #fff;
   }
   .send-button {
-    visibility: visible;
     background-color: #7289da;
-    color: #fff;
     cursor: pointer;
     text-align: center;
     border-radius: 100%;
-    font-weight: 900;
   }
   .login{
     width: 90% !important;
   }
   .message-container{
     padding-bottom: 1.5em;
+    transition: width 0.3s ease-in-out;
+    transition: margin-right 0.3s ease-in-out;
   }
 }
 .msg-header {
@@ -271,6 +277,8 @@ form{
   position: fixed;
   width: 100%;
   height: 4em;
+  border-bottom: solid 0.1em #212529;
+
 }
 
 .form-button-green {
@@ -370,6 +378,8 @@ body.modal-open {
   height: calc(100% - 4em);
   margin-top: 4em;
   position: fixed;
+  border-right: solid 0.1em #212529;
+
 }
 
 .user-list {
