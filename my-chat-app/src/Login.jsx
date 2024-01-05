@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RegisterForm from './RegisterForm';
 import crypto from './crypto';
 
-function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, isLoading, errorMessage, errorHandling}) {
+function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, errorHandling, serverOptions}) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -26,8 +26,7 @@ function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPa
     setIsLoading(true);
     const hash = hashPassword(username, password);
     try {
-      const response = await fetch(
-        `${window.location.protocol}//${window.location.hostname}:3001/api/login`,
+      const response = await fetch((serverOptions.isDevelopment?serverOptions.backUrl + `/api/login`: `${window.location.protocol}//${window.location.hostname}:3001/api/login`),
         {
           method: "POST",
           headers: {
@@ -90,7 +89,7 @@ function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPa
         <button type="button" onClick={handleRegisterButtonClick} className="button-register">Register</button>
       </div>
       </form>
-      <RegisterForm isOpen={isRegisterOpen} onClose={handleCloseRegister} />
+      <RegisterForm isOpen={isRegisterOpen} onClose={handleCloseRegister} serverOptions={serverOptions} />
     </div>
   );
 }

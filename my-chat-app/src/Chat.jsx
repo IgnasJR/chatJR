@@ -17,7 +17,8 @@ function Chat({
   selectedUser,
   setNewMessage,
   SendSocketMessage,
-  errorHandling
+  errorHandling,
+  serverOptions
 }) {
   const observer = useRef();
   let isObserving = false;
@@ -41,7 +42,7 @@ function Chat({
   const handleDeleteConversation = async (conversationId) => {
     try {
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
+      (serverOptions.isDevelopment?serverOptions.backUrl + `/api/conversations`: `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`),
       {
         method: "DELETE",
         headers: {

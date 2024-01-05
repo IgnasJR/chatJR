@@ -5,9 +5,14 @@ const { connection } = require('../database/mysql');
 const { createConversation, removeConversation } = require('../database/conversations');
 
 const setupExpress = (app) => {
+  // Create a new conversation
   app.post('/api/conversations', async (req, res) => {
     const userId = verifyJwt(req.headers.authorization);
     const { username } = req.body;
+    if (!username) {
+      res.status(400).json({ error: 'No username provided' });
+      return;
+    }
     const result = await createConversation({ userId, username });
     if (result === 'Conversation already exists') {
       res.status(400).json({ error: 'Conversation already exists' });
@@ -124,10 +129,18 @@ const setupExpress = (app) => {
 
   app.post('/api/register', (req, res) => {
     const { username, password, publicKey, privateKey } = req.body;
-    const query = 'INSERT INTO Users (username, password, public_key, private_key) VALUES (?, ?, ?, ?)';
-    connection.query(query, [username, password, publicKey, privateKey], (err, result) => {
+    const insertQuery = `
+        INSERT INTO Users (username, password, public_key, private_key)
+        SELECT ?, ?, ?, ?
+        WHERE NOT EXISTS (
+            SELECT * FROM Users WHERE username = ?
+        )
+    `;
+    connection.query(insertQuery, [username, password, publicKey, privateKey, username], (err, result) => {
       if (err) {
         res.status(500).json({ error: 'Error registering a user' });
+      } else if (result.affectedRows === 0) {
+        res.status(400).json({ error: 'User already exists' });
       } else {
         res.json({ id: result.insertId });
       }

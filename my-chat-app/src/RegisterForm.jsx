@@ -3,12 +3,14 @@ import Modal from 'react-modal';
 import forge from 'node-forge';
 let CryptoJS = require('crypto-js');
 
-const RegisterForm = ({ isOpen, onClose }) => {
+const RegisterForm = ({ isOpen, onClose, serverOptions }) => {
   let [username, setUsername] = useState('');
   let [password, setPassword] = useState('');
 
   const handleRegister = async () => {
     try {
+      if (!username || !password) return;
+      
       // Generating RSA key pair
       const keyPair = forge.pki.rsa.generateKeyPair({ bits: 2048 });
       const publicKey = forge.pki.publicKeyToPem(keyPair.publicKey);
@@ -23,7 +25,7 @@ const RegisterForm = ({ isOpen, onClose }) => {
       algo.update(CryptoJS.SHA256(username), 'utf-8');
       password = algo.finalize().toString(CryptoJS.enc.Base64);
 
-      const response = await fetch('http://localhost:3001/api/register', {
+      const response = await fetch((serverOptions.isDevelopment?serverOptions.backUrl + `/api/register`: `${window.location.protocol}//${window.location.hostname}:3001/api/register`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

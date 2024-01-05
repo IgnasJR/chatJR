@@ -1,4 +1,5 @@
 import crypto from "./crypto";
+import serverOptions from "./serverSettings";
 
 export const handleSendMessage = async (
   privacy,
@@ -9,6 +10,7 @@ export const handleSendMessage = async (
   setNewMessage,
   SendSocketMessage
 ) => {
+  if (newMessage === "") return;
   if (privacy) {
     const encryptedMessage = crypto.encryptMessage(newMessage, public_key);
     SendSocketMessage(encryptedMessage);
@@ -18,11 +20,11 @@ export const handleSendMessage = async (
   try {
     if (!selectedUser) {
       throw new Error("No conversation selected");
-    } else if (newMessage === "") {
-      throw new Error("No message to send");
     }
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3001/api/messages`,
+      serverOptions.isDevelopment
+        ? serverOptions.backUrl + `/api/messages`
+        : `${window.location.protocol}//${window.location.hostname}:3001/api/messages`,
       {
         method: "POST",
         headers: {

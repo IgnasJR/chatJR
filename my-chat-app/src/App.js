@@ -5,6 +5,7 @@ import Chat from "./Chat";
 import io from "socket.io-client";
 import crypto from "./crypto";
 import { handleSendMessage } from "./messageHandler";
+import serverOptions from "./serverSettings";
 
 let loadedLastMessage = false;
 
@@ -47,7 +48,9 @@ function App() {
   useEffect(() => {
     if (token) {
       let newSocket = io.connect(
-        `${window.location.protocol}//${window.location.hostname}:8080/`,
+        serverOptions.isDevelopment
+          ? serverOptions.socketUrl
+          : `${window.location.protocol}//${window.location.hostname}:8080`,
         connectionOptions
       ); // Set the socket state
       setSocket(newSocket);
@@ -88,7 +91,9 @@ function App() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
+        serverOptions.isDevelopment
+          ? serverOptions.backUrl + `/api/conversations`
+          : `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -121,7 +126,9 @@ function App() {
     }
     try {
       const response = await fetch(
-        `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
+        serverOptions.isDevelopment
+          ? serverOptions.backUrl + `/api/conversations`
+          : `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
         {
           method: "POST",
           headers: {
@@ -158,7 +165,9 @@ function App() {
     setIsLoading(true);
     try {
       if (selectedUser) {
-        let url = `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${selectedUser}`;
+        let url = serverOptions.isDevelopment
+          ? serverOptions.backUrl + `/api/messages/${selectedUser}`
+          : `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${selectedUser}`;
 
         if (messages.length > 0) {
           url += `?lastMessageId=${messages[0].message_id}`;
@@ -275,6 +284,7 @@ function App() {
           public_key={public_key}
           errorHandling={errorHandling}
           errorMessage={errorMessage}
+          serverOptions={serverOptions}
         />
       ) : (
         <Login
@@ -283,11 +293,10 @@ function App() {
           setCurrentUserId={setCurrentUserId}
           setPrivateKey={setPrivateKey}
           setPublicKey={setPublicKey}
-          isLoading={isLoading}
           setIsLoading={setIsLoading}
           hashPassword={crypto.hashPassword}
           errorHandling={errorHandling}
-          errorMessage={errorMessage}
+          serverOptions={serverOptions}
         />
       )}
     </div>

@@ -18,6 +18,9 @@ const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
 };
 
 const createConversation = async ({ userId, username }) => {
+  if (!username) {
+    return new Error('No username provided');
+  }
   const conversationQuery = `
     INSERT INTO Conversations (user1_id, user2_id)
     SELECT ?, U.id FROM Users AS U
