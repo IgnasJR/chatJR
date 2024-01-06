@@ -86,11 +86,12 @@ const setupExpress = (app) => {
     switch (lastMessageId) {
       case 0:
         query = `
-        SELECT M.* FROM Messages M JOIN Conversations C 
-        ON M.conversation_id = C.conversation_id 
-        WHERE M.conversation_id = ? AND (C.user1_id = ? 
-        OR C.user2_id = ?) AND M.message_id > ? 
-        ORDER BY M.message_id ASC LIMIT 30;`;
+        SELECT * FROM (
+          SELECT M.* FROM Messages M 
+          JOIN Conversations C ON M.conversation_id = C.conversation_id 
+          WHERE M.conversation_id = ? AND (C.user1_id = ? OR C.user2_id = ?) 
+          ORDER BY M.message_id DESC LIMIT 30
+        ) AS T ORDER BY T.message_id ASC;`;
         break;
       default:
         query = `

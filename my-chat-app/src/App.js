@@ -50,7 +50,7 @@ function App() {
       let newSocket = io.connect(
         serverOptions.isDevelopment
           ? serverOptions.socketUrl
-          : `${window.location.protocol}//${window.location.hostname}:8080`,
+          : `${window.location.protocol}//${window.location.hostname}:8080/`,
         connectionOptions
       ); // Set the socket state
       setSocket(newSocket);
@@ -82,10 +82,6 @@ function App() {
       };
     }
   }, [token, selectedUser]);
-
-  let handleInputChange = (e) => {
-    setNewMessage(e.target.value);
-  };
 
   const fetchConversations = async () => {
     setIsLoading(true);
@@ -220,7 +216,7 @@ function App() {
       sender_id: currentUserId,
     };
     console.log("Message sent:", message);
-    messages.push(message);
+    setMessages((prevMessages) => [...prevMessages, message]);
   };
 
   const errorHandling = (error) => {
@@ -270,7 +266,6 @@ function App() {
           selectedUser={selectedUser}
           setSelectedUser={setSelectedUser}
           handleAddConversation={handleAddConversation}
-          handleInputChange={handleInputChange}
           newMessage={newMessage}
           setNewMessage={setNewMessage}
           handleSendMessage={handleSendMessage}

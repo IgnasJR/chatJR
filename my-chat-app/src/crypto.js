@@ -10,6 +10,9 @@ const hashPassword = (username, password) => {
 };
 
 const encryptMessage = (message, publicKey) => {
+  if (message.length >= 190) {
+    throw new Error("Message too long");
+  }
   console.log(message, publicKey);
   const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
   const encrypted = forge.util.encode64(

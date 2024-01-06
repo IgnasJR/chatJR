@@ -32,9 +32,9 @@
 
 - [x] Users with empty username string can be created
 - [x] No checking for multiple usernames
-- [ ] Pressing enter while another message is being sent lets user send multiple copies of the same message
-- [ ] Secret mode button needs a on hover explanation and be move somewhere, as it isn't intuitive
-- [ ] Limit lenght of secret mode messages, while using RSA
+- [x] Pressing enter while another message is being sent lets user send multiple copies of the same message
+- [x] Secret mode button needs a on hover explanation and be move somewhere, as it isn't intuitive
+- [x] Limit lenght of secret mode messages, while using RSA
 - [x] No input validation for adding users
 
 Not sure how, but multiple users with same username screw up conversations and messages

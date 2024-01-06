@@ -3,18 +3,21 @@ import serverOptions from "./serverSettings";
 
 export const handleSendMessage = async (
   privacy,
-  newMessage,
+  message,
   public_key,
   selectedUser,
   token,
-  setNewMessage,
-  SendSocketMessage
+  SendSocketMessage,
+  errorHandling
 ) => {
-  if (newMessage === "") return;
+  if (message === "") return;
   if (privacy) {
-    const encryptedMessage = crypto.encryptMessage(newMessage, public_key);
-    SendSocketMessage(encryptedMessage);
-    setNewMessage("");
+    try {
+      const encryptedMessage = crypto.encryptMessage(message, public_key);
+      SendSocketMessage(encryptedMessage);
+    } catch (error) {
+      errorHandling(error.message);
+    }
     return;
   }
   try {
@@ -33,13 +36,12 @@ export const handleSendMessage = async (
         },
         body: JSON.stringify({
           conversationId: selectedUser,
-          messageContent: newMessage,
+          messageContent: message,
         }),
       }
     );
     if (response.ok) {
       SendSocketMessage();
-      setNewMessage("");
     }
   } catch (error) {
     console.error(error);
