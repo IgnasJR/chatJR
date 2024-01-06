@@ -22,11 +22,11 @@
 
 - [x] Fixing UI for mobile
 - [x] Adding users using their username, instead of their user_id
-- [ ] Adding alerts (sweetalert)
+- [x] Adding alerts
 - [x] Log out button
 - [x] Time-out for tokens
 - [x] Remove conversation
-- [ ] Modify Chat window UI
+- [x] Modify Chat window UI
 
 #### Bugs:
 
