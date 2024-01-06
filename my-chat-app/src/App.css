@@ -469,7 +469,8 @@ body.modal-open {
   display: flex;
   margin-bottom: 10px;
   justify-content: flex-start;
-  word-break: keep-all;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .message-content {

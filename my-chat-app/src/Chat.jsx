@@ -17,7 +17,8 @@ function Chat({
   setNewMessage,
   SendSocketMessage,
   errorHandling,
-  serverOptions
+  serverOptions,
+  removeCookie
 }) {
   const observer = useRef();
   let isObserving = false;
@@ -111,6 +112,7 @@ function Chat({
       setSidebarOpen(!sidebarOpen);
     };
     const logOut = () => {
+      removeCookie();
       window.location.reload();
     };
 

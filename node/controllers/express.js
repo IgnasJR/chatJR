@@ -33,6 +33,16 @@ const setupExpress = (app) => {
     }
   });
 
+  app.post('/api/verify', async (req, res) => {
+    const token = req.headers.authorization;
+    const userId = verifyJwt(token);
+    if (userId) {
+      res.status(200).json({ userId });
+    } else {
+      res.status(401).json({ error: 'Invalid token' });
+    }
+  });
+
   // Get all users you can talk to
   app.get('/api/conversations', (req, res) => {
     const userId = verifyJwt(req.headers.authorization);

@@ -6,6 +6,7 @@ import io from "socket.io-client";
 import crypto from "./crypto";
 import { handleSendMessage } from "./messageHandler";
 import serverOptions from "./serverSettings";
+import Cookies from "js-cookie";
 
 let loadedLastMessage = false;
 
@@ -14,7 +15,7 @@ function App() {
   const [public_key, setPublicKey] = useState("");
   const [currentUserId, setCurrentUserId] = useState();
   const [conversations, setConversations] = useState([]);
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(Cookies.get("token"));
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
@@ -46,6 +47,7 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
+    // setToken(Cookies.get("token"));
     if (token) {
       let newSocket = io.connect(
         serverOptions.isDevelopment
@@ -82,6 +84,13 @@ function App() {
       };
     }
   }, [token, selectedUser]);
+
+  const setCookie = (token) => {
+    Cookies.set("token", token, { expires: 7, secure: true });
+  };
+  const removeCookie = () => {
+    Cookies.remove("token");
+  };
 
   const fetchConversations = async () => {
     setIsLoading(true);
@@ -280,6 +289,7 @@ function App() {
           errorHandling={errorHandling}
           errorMessage={errorMessage}
           serverOptions={serverOptions}
+          removeCookie={removeCookie}
         />
       ) : (
         <Login
@@ -292,6 +302,7 @@ function App() {
           hashPassword={crypto.hashPassword}
           errorHandling={errorHandling}
           serverOptions={serverOptions}
+          setCookie={setCookie}
         />
       )}
     </div>

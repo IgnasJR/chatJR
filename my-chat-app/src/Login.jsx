@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RegisterForm from './RegisterForm';
 import crypto from './crypto';
 
-function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, errorHandling, serverOptions}) {
+function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, errorHandling, serverOptions, setCookie}) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -39,6 +39,7 @@ function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPa
       const data = await response.json();
       if (response.ok) {
         setToken(data.token);
+        setCookie(data.token);
         setCurrentUserId(data.userId);
         setPrivateKey(crypto.decryptPrivateKey(data.privateKey, password));
       } else {
