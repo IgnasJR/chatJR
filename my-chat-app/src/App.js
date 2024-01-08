@@ -11,9 +11,11 @@ import Cookies from "js-cookie";
 let loadedLastMessage = false;
 
 function App() {
-  const [private_key, setPrivateKey] = useState("");
+  const [private_key, setPrivateKey] = useState(Cookies.get("privateKey"));
   const [public_key, setPublicKey] = useState("");
-  const [currentUserId, setCurrentUserId] = useState();
+  const [currentUserId, setCurrentUserId] = useState(
+    parseInt(Cookies.get("userId"))
+  );
   const [conversations, setConversations] = useState([]);
   const [token, setToken] = useState(Cookies.get("token"));
   const [messages, setMessages] = useState([]);
@@ -47,7 +49,6 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // setToken(Cookies.get("token"));
     if (token) {
       let newSocket = io.connect(
         serverOptions.isDevelopment
@@ -85,11 +86,15 @@ function App() {
     }
   }, [token, selectedUser]);
 
-  const setCookie = (token) => {
+  const setCookie = (token, privateKey, userId) => {
     Cookies.set("token", token, { expires: 7, secure: true });
+    Cookies.set("privateKey", privateKey, { expires: 7, secure: true });
+    Cookies.set("userId", userId, { expires: 7, secure: true });
   };
   const removeCookie = () => {
     Cookies.remove("token");
+    Cookies.remove("privateKey");
+    Cookies.remove("userId");
   };
 
   const fetchConversations = async () => {

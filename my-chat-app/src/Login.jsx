@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import RegisterForm from './RegisterForm';
 import crypto from './crypto';
+import Cookies from 'js-cookie';
 
 function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, errorHandling, serverOptions, setCookie}) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
@@ -39,9 +40,7 @@ function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPa
       const data = await response.json();
       if (response.ok) {
         setToken(data.token);
-        setCookie(data.token);
-        setCurrentUserId(data.userId);
-        setPrivateKey(crypto.decryptPrivateKey(data.privateKey, password));
+        setCookie(data.token, crypto.decryptPrivateKey(data.privateKey, password), data.userId);
       } else {
         errorHandling(data.error);
       }

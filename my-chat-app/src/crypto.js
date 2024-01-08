@@ -24,6 +24,8 @@ const encryptMessage = (message, publicKey) => {
 };
 
 const decryptMessage = (message, privateKey) => {
+  console.log("Private key: ", privateKey);
+
   const privateKeyObj = forge.pki.privateKeyFromPem(privateKey);
   const decrypted = privateKeyObj.decrypt(
     forge.util.decode64(message),
