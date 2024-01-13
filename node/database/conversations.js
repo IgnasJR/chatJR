@@ -5,6 +5,12 @@ const { connection } = require('./mysql');
 const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
   const checkQuery = 'SELECT conversation_id FROM Conversations WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)';
   const conversationsIds = await new Promise((resolve, reject) => {
+    try {
+      connection.getConnection();
+    } catch (err) {
+      connection.release();
+      reject(new Error('Failed to establish connection to database'));
+    }
     connection.query(checkQuery, [userId, otherUserId, otherUserId, userId], (checkErr, checkResults) => {
       if (checkErr) {
         reject(new Error('Failed to get conversations'));
@@ -34,7 +40,13 @@ const createConversation = async ({ userId, username }) => {
   `;
 
   return new Promise((resolve, reject) => {
+    try {
+      connection.getConnection();
+    } catch (err) {
+      reject(new Error('Failed to establish connection to database'));
+    }
     connection.query(conversationQuery, [userId, username, userId, userId, userId], (err, result) => {
+      connection.release();
       if (err) {
         reject(new Error('Error adding conversation'));
       } else if (result && result.affectedRows === 0) {
@@ -56,9 +68,14 @@ const removeConversation = async ({ userId, conversationId }) => {
   const messagesQuery = `
     DELETE FROM Messages WHERE conversation_id = ?
   `;
-
   return new Promise((resolve, reject) => {
+    try {
+      connection.getConnection();
+    } catch (err) {
+      reject(new Error('Failed to establish connection to database'));
+    }
     connection.query(conversationQuery, [conversationId, userId, userId], (err, result) => {
+      connection.release();
       if (err) {
         reject(new Error('Error removing conversation'));
       } else if (result && result.affectedRows === 0) {

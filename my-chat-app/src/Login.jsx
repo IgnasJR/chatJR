@@ -39,8 +39,11 @@ function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPa
 
       const data = await response.json();
       if (response.ok) {
-        setToken(data.token);
-        setCookie(data.token, crypto.decryptPrivateKey(data.privateKey, password), data.userId);
+        // setToken(data.token);
+        // setCurrentUserId(data.userId);
+        // setPrivateKey(crypto.decryptPrivateKey(data.privateKey, password));
+        await setCookie(data.token, crypto.decryptPrivateKey(data.privateKey, password), data.userId);
+        window.location.reload();
       } else {
         errorHandling(data.error);
       }

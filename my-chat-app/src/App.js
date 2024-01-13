@@ -87,9 +87,9 @@ function App() {
   }, [token, selectedUser]);
 
   const setCookie = (token, privateKey, userId) => {
-    Cookies.set("token", token, { expires: 7, secure: true });
-    Cookies.set("privateKey", privateKey, { expires: 7, secure: true });
-    Cookies.set("userId", userId, { expires: 7, secure: true });
+    Cookies.set("token", token, { expires: 7, secure: false });
+    Cookies.set("privateKey", privateKey, { expires: 7, secure: false });
+    Cookies.set("userId", userId, { expires: 7, secure: false });
   };
   const removeCookie = () => {
     Cookies.remove("token");
