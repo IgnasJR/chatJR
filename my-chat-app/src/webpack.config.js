@@ -1,35 +1,34 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  entry: './index.js',
+  entry: "./index.js",
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist"),
   },
-  mode: 'development',
+  mode: "development",
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
         },
       },
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: [".js", ".jsx"],
     fallback: {
-      assert: require.resolve('assert/'),
-      crypto: require.resolve('crypto-browserify'),
-      constants: require.resolve('constants-browserify'),
-      buffer: require.resolve('buffer/'),
-      
+      assert: require.resolve("assert/"),
+      crypto: require.resolve("crypto-browserify"),
+      constants: require.resolve("constants-browserify"),
+      buffer: require.resolve("buffer/"),
     },
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: path.join(__dirname, "dist"),
     compress: true,
     port: 3000,
   },

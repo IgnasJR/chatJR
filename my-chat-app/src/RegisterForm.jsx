@@ -3,12 +3,12 @@ import Modal from 'react-modal';
 import forge from 'node-forge';
 let CryptoJS = require('crypto-js');
 
-const RegisterForm = ({ isOpen, onClose, serverOptions }) => {
+const RegisterForm = ({ isOpen, onClose, serverOptions, errorHandling, setIsLoading }) => {
   let [username, setUsername] = useState('');
   let [password, setPassword] = useState('');
 
   const handleRegister = async () => {
-    try {
+    setIsLoading(true);
       if (!username || !password) return;
       
       // Generating RSA key pair
@@ -25,24 +25,38 @@ const RegisterForm = ({ isOpen, onClose, serverOptions }) => {
       algo.update(CryptoJS.SHA256(username), 'utf-8');
       password = algo.finalize().toString(CryptoJS.enc.Base64);
 
-      const response = await fetch((serverOptions.isDevelopment?serverOptions.backUrl + `/api/register`: `${window.location.protocol}//${window.location.hostname}:3001/api/register`), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password, publicKey, privateKey: encryptedPrivateKey }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        onClose();
-      } else {
-        console.error(data.error);
+      try{
+        const response = await fetch((serverOptions.isDevelopment?serverOptions.backUrl + `/api/register`: `${window.location.protocol}//${window.location.hostname}:3001/api/register`), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password, publicKey, privateKey: encryptedPrivateKey }),
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          errorHandling('Registration successful');
+          close();
+          
+        } else {
+            throw new Error(data.error);
+        }
+      setIsLoading(false);
+      } catch (error){
+        console.error(error.message);
+        errorHandling(error.message);
+        close();
       }
-    } catch (error) {
-      console.error('Error:', error);
-    }
+      setIsLoading(false);
+      
+
   };
+
+  const close = () => {
+  onClose(false);
+  };
+
 
   return (
     <Modal className={'register'} isOpen={isOpen} onRequestClose={onClose}>
@@ -62,11 +76,11 @@ const RegisterForm = ({ isOpen, onClose, serverOptions }) => {
           onChange={(e) => setPassword(e.target.value)}
           className="form-input-register"
         />
-          <div>
+          <div style={{display:'flex', justifyContent:'center'}}>
             <button onClick={handleRegister} className="form-button-green">
             Register
             </button>
-            <button onClick={onClose} className="form-button-red">
+            <button onClick={close} className="form-button-red">
             Cancel
             </button>
           </div>

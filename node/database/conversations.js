@@ -27,6 +27,7 @@ const createConversation = async ({ userId, username }) => {
   if (!username) {
     return new Error('No username provided');
   }
+
   const conversationQuery = `
     INSERT INTO Conversations (user1_id, user2_id)
     SELECT ?, U.id FROM Users AS U
@@ -41,20 +42,26 @@ const createConversation = async ({ userId, username }) => {
 
   return new Promise((resolve, reject) => {
     try {
-      connection.getConnection();
+      connection.getConnection((err, conn) => {
+        if (err) {
+          reject(new Error('Failed to establish connection to database'));
+          return;
+        }
+        conn.query(conversationQuery, [userId, username, userId, userId, userId], (error, result) => {
+          conn.release();
+
+          if (error) {
+            reject(new Error('Error adding conversation'));
+          } else if (result && result.affectedRows === 0) {
+            resolve(new Error('Conversation already exists'));
+          } else {
+            resolve(result.insertId);
+          }
+        });
+      });
     } catch (err) {
       reject(new Error('Failed to establish connection to database'));
     }
-    connection.query(conversationQuery, [userId, username, userId, userId, userId], (err, result) => {
-      connection.release();
-      if (err) {
-        reject(new Error('Error adding conversation'));
-      } else if (result && result.affectedRows === 0) {
-        resolve(new Error('Conversation already exists'));
-      } else {
-        resolve(result.insertId);
-      }
-    });
   });
 };
 
@@ -68,24 +75,26 @@ const removeConversation = async ({ userId, conversationId }) => {
   const messagesQuery = `
     DELETE FROM Messages WHERE conversation_id = ?
   `;
+
   return new Promise((resolve, reject) => {
-    try {
-      connection.getConnection();
-    } catch (err) {
-      reject(new Error('Failed to establish connection to database'));
-    }
-    connection.query(conversationQuery, [conversationId, userId, userId], (err, result) => {
-      connection.release();
+    connection.getConnection((err, conn) => {
       if (err) {
-        reject(new Error('Error removing conversation'));
-      } else if (result && result.affectedRows === 0) {
-        resolve(new Error('Conversation cannot be removed'));
+        reject(new Error('Failed to establish connection to database'));
       } else {
-        connection.query(messagesQuery, [conversationId], (error, messagesResult) => {
-          if (error) {
-            reject(new Error('Error removing messages'));
+        conn.query(conversationQuery, [conversationId, userId, userId], (err, result) => {
+          if (err) {
+            reject(new Error('Error removing conversation'));
+          } else if (result && result.affectedRows === 0) {
+            resolve(new Error('Conversation cannot be removed'));
           } else {
-            resolve(messagesResult.insertId);
+            conn.query(messagesQuery, [conversationId], (err, messagesResult) => {
+              conn.release();
+              if (err) {
+                reject(new Error('Error removing messages'));
+              } else {
+                resolve(messagesResult.affectedRows);
+              }
+            });
           }
         });
       }

@@ -18,7 +18,7 @@ function Chat({
   SendSocketMessage,
   errorHandling,
   serverOptions,
-  removeCookie
+  removeCookie,
 }) {
   const observer = useRef();
   let isObserving = false;
@@ -37,7 +37,7 @@ function Chat({
       });
     }
     observeLastMessage();
-  },[messages])
+  },[])
 
   const handleDeleteConversation = async (conversationId) => {
     try {
@@ -58,6 +58,9 @@ function Chat({
       conversations = conversations.filter((conversation) => conversation.conversation_id !== conversationId);
       setNewUserInput('');
       messages = [];
+      if (conversations.username === selectedUsername) {
+        setUsername('');
+      }
     }
   }
   catch (error) {

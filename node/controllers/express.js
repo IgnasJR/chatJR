@@ -139,6 +139,10 @@ const setupExpress = (app) => {
   });
 
   app.post('/api/register', (req, res) => {
+    if (req.body.username.includes(' ') || req.body.password.includes(' ') || req.body.username === '' || req.body.password === '') {
+      res.status(500).json({ error: 'Username and password cannot contain spaces' });
+      return;
+    }
     const { username, password, publicKey, privateKey } = req.body;
     const insertQuery = `
         INSERT INTO Users (username, password, public_key, private_key)

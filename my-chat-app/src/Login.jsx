@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import RegisterForm from './RegisterForm';
 import crypto from './crypto';
-import Cookies from 'js-cookie';
 
-function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPassword, errorHandling, serverOptions, setCookie}) {
+function Login( { setIsLoading, hashPassword, errorHandling, serverOptions, setCookie }) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -92,7 +91,7 @@ function Login( {setToken, setCurrentUserId, setPrivateKey, setIsLoading, hashPa
         <button type="button" onClick={handleRegisterButtonClick} className="button-register">Register</button>
       </div>
       </form>
-      <RegisterForm isOpen={isRegisterOpen} onClose={handleCloseRegister} serverOptions={serverOptions} />
+      <RegisterForm className={'register'} isOpen={isRegisterOpen} onClose={setRegisterOpen} serverOptions={serverOptions} errorHandling={errorHandling} setIsLoading={setIsLoading}/>
     </div>
   );
 }

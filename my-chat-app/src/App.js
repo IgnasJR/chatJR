@@ -31,12 +31,10 @@ function App() {
     loadedLastMessage = false;
   };
   const handleUserSelection = (userId, key) => {
-    if (userId === selectedUser) return;
     setMessages([]);
     loadedLastMessage = false;
     setPublicKey(key);
     setSelectedUser(userId);
-    fetchMessages();
   };
   const [isLoading, setIsLoading] = useState(false);
 
@@ -77,14 +75,16 @@ function App() {
         });
       }
       fetchConversations();
-      fetchMessages(selectedUser);
+      if (selectedUser) {
+        fetchMessages(selectedUser);
+      }
       return () => {
         if (socket) {
           socket.disconnect();
         }
       };
     }
-  }, [token, selectedUser]);
+  }, [token, selectedUser, messages]);
 
   const setCookie = (token, privateKey, userId) => {
     Cookies.set("token", token, { expires: 7, secure: false });
@@ -295,6 +295,7 @@ function App() {
           errorMessage={errorMessage}
           serverOptions={serverOptions}
           removeCookie={removeCookie}
+          setMessages={setMessages}
         />
       ) : (
         <Login
