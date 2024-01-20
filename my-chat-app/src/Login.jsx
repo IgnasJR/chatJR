@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import RegisterForm from './RegisterForm';
 import crypto from './crypto';
 
-function Login( { setIsLoading, hashPassword, errorHandling, serverOptions, setCookie }) {
+function Login( { setIsLoading, hashPassword, errorHandling, serverOptions, setCookie, setPublicKey }) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -38,10 +38,7 @@ function Login( { setIsLoading, hashPassword, errorHandling, serverOptions, setC
 
       const data = await response.json();
       if (response.ok) {
-        // setToken(data.token);
-        // setCurrentUserId(data.userId);
-        // setPrivateKey(crypto.decryptPrivateKey(data.privateKey, password));
-        await setCookie(data.token, crypto.decryptPrivateKey(data.privateKey, password), data.userId);
+        await setCookie(data.token, crypto.decryptPrivateKey(data.privateKey, password), data.userId, data.publicKey);
         window.location.reload();
       } else {
         errorHandling(data.error);
@@ -59,10 +56,6 @@ function Login( { setIsLoading, hashPassword, errorHandling, serverOptions, setC
 
   const handleRegisterButtonClick = () => {
     setRegisterOpen(true);
-  };
-
-  const handleCloseRegister = () => {
-    setRegisterOpen(false);
   };
 
   return (
@@ -91,7 +84,7 @@ function Login( { setIsLoading, hashPassword, errorHandling, serverOptions, setC
         <button type="button" onClick={handleRegisterButtonClick} className="button-register">Register</button>
       </div>
       </form>
-      <RegisterForm className={'register'} isOpen={isRegisterOpen} onClose={setRegisterOpen} serverOptions={serverOptions} errorHandling={errorHandling} setIsLoading={setIsLoading}/>
+      <RegisterForm className={'register'} isOpen={isRegisterOpen} onClose={setRegisterOpen} serverOptions={serverOptions} errorHandling={errorHandling} setIsLoading={setIsLoading} setPublicKey={setPublicKey}/>
     </div>
   );
 }

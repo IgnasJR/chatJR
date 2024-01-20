@@ -12,7 +12,7 @@ let loadedLastMessage = false;
 
 function App() {
   const [private_key, setPrivateKey] = useState(Cookies.get("privateKey"));
-  const [public_key, setPublicKey] = useState("");
+  const [public_key, setPublicKey] = useState(Cookies.get("publicKey"));
   const [currentUserId, setCurrentUserId] = useState(
     parseInt(Cookies.get("userId"))
   );
@@ -21,6 +21,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
+  const [aesKey, setAesKey] = useState("");
   const [errorMessage, updateErrorMessage] = useState({
     errorStatus: false,
     message: null,
@@ -33,8 +34,8 @@ function App() {
   const handleUserSelection = (userId, key) => {
     setMessages([]);
     loadedLastMessage = false;
-    setPublicKey(key);
     setSelectedUser(userId);
+    setAesKey(key);
   };
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,15 +87,17 @@ function App() {
     }
   }, [token, selectedUser, messages]);
 
-  const setCookie = (token, privateKey, userId) => {
+  const setCookie = (token, privateKey, userId, publicKey) => {
     Cookies.set("token", token, { expires: 7, secure: false });
     Cookies.set("privateKey", privateKey, { expires: 7, secure: false });
     Cookies.set("userId", userId, { expires: 7, secure: false });
+    Cookies.set("publicKey", publicKey, { expires: 7, secure: false });
   };
   const removeCookie = () => {
     Cookies.remove("token");
     Cookies.remove("privateKey");
     Cookies.remove("userId");
+    Cookies.remove("publicKey");
   };
 
   const fetchConversations = async () => {
@@ -125,6 +128,31 @@ function App() {
 
   const handleAddConversation = async (newUserInput) => {
     setIsLoading(true);
+    let aesKey = crypto.generateAESkey();
+    let otherPublicKey;
+    try {
+      const response = await fetch(
+        serverOptions.isDevelopment
+          ? serverOptions.backUrl + `/api/verify`
+          : `${window.location.protocol}//${window.location.hostname}:3001/api/getPublicKey/${newUserInput}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        otherPublicKey = data;
+      } else {
+        throw new Error("Unable to fetch user");
+      }
+    } catch (error) {
+      errorHandling("Unable to fetch user");
+      setIsLoading(false);
+      return;
+    }
+
     if (
       conversations.some(
         (conversation) => conversation.username === newUserInput
@@ -134,6 +162,9 @@ function App() {
       errorHandling("Conversation already exists");
       return;
     }
+
+    console.log("Other public key: ", otherPublicKey);
+    console.log("Public key: ", public_key);
     try {
       const response = await fetch(
         serverOptions.isDevelopment
@@ -145,7 +176,12 @@ function App() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ username: newUserInput }),
+
+          body: JSON.stringify({
+            username: newUserInput,
+            firstKey: crypto.encryptMessage(aesKey, public_key),
+            secondKey: crypto.encryptMessage(aesKey, otherPublicKey),
+          }),
         }
       );
 
@@ -157,6 +193,7 @@ function App() {
             conversation_id: data.conversationId,
             user_id: newUserInput,
             username: newUserInput,
+            key: aesKey,
           },
         ]);
         setSelectedUser("");
@@ -182,7 +219,6 @@ function App() {
         if (messages.length > 0) {
           url += `?lastMessageId=${messages[0].message_id}`;
         }
-
         const response = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -296,6 +332,7 @@ function App() {
           serverOptions={serverOptions}
           removeCookie={removeCookie}
           setMessages={setMessages}
+          crypto={crypto}
         />
       ) : (
         <Login

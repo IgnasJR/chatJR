@@ -1,3 +1,4 @@
+/* eslint-disable object-curly-newline */
 /* eslint-disable no-console */
 /* eslint-disable operator-linebreak */
 const { connection } = require('./mysql');
@@ -23,14 +24,16 @@ const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
   return conversationsIds;
 };
 
-const createConversation = async ({ userId, username }) => {
+const createConversation = async ({ userId, username, firstKey, secondKey }) => {
   if (!username) {
     return new Error('No username provided');
   }
 
+  console.log(username, firstKey, secondKey);
+
   const conversationQuery = `
-    INSERT INTO Conversations (user1_id, user2_id)
-    SELECT ?, U.id FROM Users AS U
+    INSERT INTO Conversations (user1_id, user2_id, user1_key, user2_key)
+    SELECT ?, U.id, ?, ? FROM Users AS U
     WHERE U.username = ? AND NOT EXISTS (
       SELECT 1 FROM Conversations AS C
       WHERE (
@@ -47,10 +50,11 @@ const createConversation = async ({ userId, username }) => {
           reject(new Error('Failed to establish connection to database'));
           return;
         }
-        conn.query(conversationQuery, [userId, username, userId, userId, userId], (error, result) => {
+        conn.query(conversationQuery, [userId, firstKey, secondKey, username, userId, userId, userId], (error, result) => {
           conn.release();
 
           if (error) {
+            console.log(error);
             reject(new Error('Error adding conversation'));
           } else if (result && result.affectedRows === 0) {
             resolve(new Error('Conversation already exists'));

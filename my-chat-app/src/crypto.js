@@ -1,4 +1,4 @@
-import CryptoJS from "crypto-js";
+import CryptoJS, { AES } from "crypto-js";
 import forge from "node-forge";
 
 const hashPassword = (username, password) => {
@@ -10,9 +10,7 @@ const hashPassword = (username, password) => {
 };
 
 const encryptMessage = (message, publicKey) => {
-  if (message.length >= 190) {
-    throw new Error("Message too long");
-  }
+  console.log("Encrypting message ", message, " with public key: ", publicKey);
   console.log(message, publicKey);
   const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
   const encrypted = forge.util.encode64(
@@ -48,10 +46,17 @@ const decryptPrivateKey = (privateKey, password) => {
   }
 };
 
+const generateAESkey = () => {
+  const randomKey = CryptoJS.lib.WordArray.random(32);
+  const hexKey = randomKey.toString(CryptoJS.enc.Hex);
+  return hexKey;
+};
+
 const crypto = {
   hashPassword,
   encryptMessage,
   decryptMessage,
   decryptPrivateKey,
+  generateAESkey,
 };
 export default crypto;
