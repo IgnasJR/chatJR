@@ -1,4 +1,4 @@
-import CryptoJS, { AES } from "crypto-js";
+import CryptoJS from "crypto-js";
 import forge from "node-forge";
 
 const hashPassword = (username, password) => {
@@ -9,7 +9,7 @@ const hashPassword = (username, password) => {
   return algo.finalize().toString(CryptoJS.enc.Base64);
 };
 
-const encryptMessage = (message, publicKey) => {
+const encryptKey = (message, publicKey) => {
   console.log("Encrypting message ", message, " with public key: ", publicKey);
   console.log(message, publicKey);
   const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
@@ -21,7 +21,7 @@ const encryptMessage = (message, publicKey) => {
   return encrypted;
 };
 
-const decryptMessage = (message, privateKey) => {
+const decryptKey = (message, privateKey) => {
   console.log("Private key: ", privateKey);
 
   const privateKeyObj = forge.pki.privateKeyFromPem(privateKey);
@@ -52,11 +52,25 @@ const generateAESkey = () => {
   return hexKey;
 };
 
+const encryptMessage = (message, aesKey) => {
+  const encrypted = CryptoJS.AES.encrypt(message, aesKey).toString();
+  return encrypted;
+};
+
+const decryptMessage = (encrypted, aesKey) => {
+  console.log("Decrypting message: ", encrypted, " with key: ", aesKey);
+  const bytes = CryptoJS.AES.decrypt(encrypted, aesKey);
+  const plain = bytes.toString(CryptoJS.enc.Utf8);
+  return plain;
+};
+
 const crypto = {
   hashPassword,
-  encryptMessage,
-  decryptMessage,
+  encryptKey,
+  decryptKey,
   decryptPrivateKey,
   generateAESkey,
+  decryptMessage,
+  encryptMessage,
 };
 export default crypto;

@@ -35,7 +35,7 @@ function App() {
     setMessages([]);
     loadedLastMessage = false;
     setSelectedUser(userId);
-    setAesKey(key);
+    setAesKey(crypto.decryptKey(key, private_key));
   };
   const [isLoading, setIsLoading] = useState(false);
 
@@ -65,12 +65,11 @@ function App() {
         socket.on("message", function (messageContent) {
           console.log("Message received:", messageContent);
           if (currentUserId === messageContent.sender_id) return;
-          if (messageContent.isPrivate) {
-            messageContent.message_content = crypto.decryptMessage(
-              messageContent.message_content,
-              private_key
-            );
-          }
+          messageContent.message_content = crypto.decryptMessage(
+            messageContent.message_content,
+            aesKey
+          );
+          console.log("Decrypted message: ", messageContent);
 
           setMessages((prevMessages) => [...prevMessages, messageContent]);
         });
@@ -179,8 +178,8 @@ function App() {
 
           body: JSON.stringify({
             username: newUserInput,
-            firstKey: crypto.encryptMessage(aesKey, public_key),
-            secondKey: crypto.encryptMessage(aesKey, otherPublicKey),
+            firstKey: crypto.encryptKey(aesKey, public_key),
+            secondKey: crypto.encryptKey(aesKey, otherPublicKey),
           }),
         }
       );
@@ -228,6 +227,12 @@ function App() {
         const data = await response.json();
         if (response.ok) {
           if (data.length > 0) {
+            data.forEach((message) => {
+              message.message_content = crypto.decryptMessage(
+                message.message_content,
+                aesKey
+              );
+            });
             setMessages((prevMessages) => [...data, ...prevMessages]);
           } else {
             loadedLastMessage = true;
@@ -252,11 +257,8 @@ function App() {
       token: token,
       conversationId: selectedUser,
       sender_id: null,
-      message_content: privacy
-        ? crypto.encryptMessage(newMessage, public_key)
-        : newMessage,
-      created_at: null,
-      isPrivate: privacy,
+      message_content: crypto.encryptMessage(newMessage, aesKey),
+      created_at: Date.now(),
     };
 
     socket.emit("message", message);
@@ -333,6 +335,7 @@ function App() {
           removeCookie={removeCookie}
           setMessages={setMessages}
           crypto={crypto}
+          aesKey={aesKey}
         />
       ) : (
         <Login

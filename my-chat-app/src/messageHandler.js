@@ -2,24 +2,13 @@ import crypto from "./crypto";
 import serverOptions from "./serverSettings";
 
 export const handleSendMessage = async (
-  privacy,
   message,
-  public_key,
   selectedUser,
   token,
   SendSocketMessage,
-  errorHandling
+  aesKey
 ) => {
   if (message === "") return;
-  if (privacy) {
-    try {
-      const encryptedMessage = crypto.encryptMessage(message, public_key);
-      SendSocketMessage(encryptedMessage);
-    } catch (error) {
-      errorHandling(error.message);
-    }
-    return;
-  }
   try {
     if (!selectedUser) {
       throw new Error("No conversation selected");
@@ -36,7 +25,7 @@ export const handleSendMessage = async (
         },
         body: JSON.stringify({
           conversationId: selectedUser,
-          messageContent: message,
+          messageContent: crypto.encryptMessage(message, aesKey),
         }),
       }
     );
