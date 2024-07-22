@@ -114,55 +114,63 @@ const setupExpress = (app) => {
   });
 
   // Get messages between two users
-  app.get('/api/messages/:conversationId', (req, res) => {
+  app.get('/api/messages/:conversationId', async (req, res) => {
     const { conversationId } = req.params;
-    const lastMessageId = req.query.lastMessageId || 0;
+    const lastMessageId = parseInt(req.query.lastMessageId, 10) || 0;
     const userId = verifyJwt(req.headers.authorization);
-
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  
     let query;
-    switch (lastMessageId) {
-      case 0:
-        query = `
+    let queryParams;
+    if (lastMessageId === 0) {
+      query = `
         SELECT * FROM (
           SELECT M.* FROM Messages M 
           JOIN Conversations C ON M.conversation_id = C.conversation_id 
           WHERE M.conversation_id = ? AND (C.user1_id = ? OR C.user2_id = ?) 
           ORDER BY M.message_id DESC LIMIT 30
-        ) AS T ORDER BY T.message_id ASC;`;
-        break;
-      default:
-        query = `
-        SELECT M.* FROM Messages M JOIN Conversations C 
-        ON M.conversation_id = C.conversation_id 
-        WHERE M.conversation_id = ? AND (C.user1_id = ? 
-        OR C.user2_id = ?) AND M.message_id < ? 
+        ) AS T ORDER BY T.message_id ASC;
+      `;
+      queryParams = [conversationId, userId, userId];
+    } else {
+      query = `
+        SELECT M.* FROM Messages M 
+        JOIN Conversations C ON M.conversation_id = C.conversation_id 
+        WHERE M.conversation_id = ? AND (C.user1_id = ? OR C.user2_id = ?) 
+        AND M.message_id < ? 
         ORDER BY M.message_id ASC LIMIT 30;`;
+      queryParams = [conversationId, userId, userId, lastMessageId];
     }
-    connection.query(query, [conversationId, userId, userId, lastMessageId], (err, results) => {
-      if (err) {
-        res.status(500).json({ error: 'Error retrieving messages' });
-      } else {
-        res.json(results);
-      }
-    });
+    try {
+      const [results] = await connection.execute(query, queryParams);
+      res.json(results);
+    } catch (error) {
+      console.error('Error retrieving messages:', error);
+      res.status(500).json({ error: 'Error retrieving messages' });
+    }
   });
 
   // Add a new message
-  app.post('/api/messages', (req, res) => {
-    const userId = verifyJwt(req.headers.authorization);
-    const { conversationId, messageContent } = req.body;
-    if (messageContent.length === 0) {
-      res.status(400).json({ error: 'Messages cannot be empty' });
-      return;
-    }
-    const query = 'INSERT INTO Messages (sender_id, conversation_id, message_content, created_at) VALUES (?, ?, ?, ?)';
-    connection.query(query, [userId, conversationId, messageContent, new Date()], (err, result) => {
-      if (err) {
-        res.status(500).json({ error: 'Error adding message' });
-      } else {
-        res.json({ id: result.insertId });
+  app.post('/api/messages', async (req, res) => {
+    try {
+      const userId = verifyJwt(req.headers.authorization);
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
       }
-    });
+      const { conversationId, messageContent } = req.body;
+      if (!messageContent || messageContent.trim().length === 0) {
+        return res.status(400).json({ error: 'Messages cannot be empty' });
+      }
+      const query = 'INSERT INTO Messages (sender_id, conversation_id, message_content, created_at) VALUES (?, ?, ?, ?)';
+      const values = [userId, conversationId, messageContent.trim(), new Date()];
+      const [result] = await connection.execute(query, values);
+      res.status(201).json({ id: result.insertId });
+    } catch (error) {
+      console.error('Error adding message:', error);
+      res.status(500).json({ error: 'Error adding message' });
+    }
   });
 
   app.post('/api/register', async (req, res) => {
