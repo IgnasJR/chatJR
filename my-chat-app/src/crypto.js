@@ -10,15 +10,18 @@ const hashPassword = (username, password) => {
 };
 
 const encryptKey = (message, publicKey) => {
-  console.log("Encrypting message ", message, " with public key: ", publicKey);
-  console.log(message, publicKey);
-  const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
-  const encrypted = forge.util.encode64(
-    publicKeyObj.encrypt(message, "RSA-OAEP", {
-      md: forge.md.sha256.create(),
-    })
-  );
-  return encrypted;
+  try {
+    console.log("Encrypting message ", message, " with public key: ", publicKey);
+    const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
+    const encrypted = forge.util.encode64(
+      publicKeyObj.encrypt(message, "RSA-OAEP", {
+        md: forge.md.sha256.create(),
+      })
+    );
+    return encrypted;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const decryptKey = (message, privateKey) => {

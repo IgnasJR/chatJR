@@ -179,7 +179,7 @@ function App() {
           body: JSON.stringify({
             username: newUserInput,
             firstKey: crypto.encryptKey(aesKey, public_key),
-            secondKey: crypto.encryptKey(aesKey, otherPublicKey),
+            secondKey: crypto.encryptKey(aesKey, otherPublicKey.public_key),
           }),
         }
       );

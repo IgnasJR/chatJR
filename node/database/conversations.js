@@ -26,10 +26,8 @@ const getConversationsIdsForUsers = async ({ userId, otherUserId }) => {
 
 const createConversation = async ({ userId, username, firstKey, secondKey }) => {
   if (!username) {
-    return new Error('No username provided');
+    throw new Error('No username provided');
   }
-
-  console.log(username, firstKey, secondKey);
 
   const conversationQuery = `
     INSERT INTO Conversations (user1_id, user2_id, user1_key, user2_key)
@@ -40,33 +38,21 @@ const createConversation = async ({ userId, username, firstKey, secondKey }) => 
         (C.user1_id = ? AND C.user2_id = U.id)
         OR (C.user1_id = U.id AND C.user2_id = ?)
       )
-    ) AND NOT (U.id = ?);
+    ) AND U.id <> ?;
   `;
 
-  return new Promise((resolve, reject) => {
-    try {
-      connection.getConnection((err, conn) => {
-        if (err) {
-          reject(new Error('Failed to establish connection to database'));
-          return;
-        }
-        conn.query(conversationQuery, [userId, firstKey, secondKey, username, userId, userId, userId], (error, result) => {
-          conn.release();
+  try {
+    const [result] = await connection.execute(conversationQuery, [userId, firstKey, secondKey, username, userId, userId, userId]);
 
-          if (error) {
-            console.log(error);
-            reject(new Error('Error adding conversation'));
-          } else if (result && result.affectedRows === 0) {
-            resolve(new Error('Conversation already exists'));
-          } else {
-            resolve(result.insertId);
-          }
-        });
-      });
-    } catch (err) {
-      reject(new Error('Failed to establish connection to database'));
+    if (result.affectedRows === 0) {
+      return 'Conversation already exists';
     }
-  });
+
+    return 'Conversation added successfully';
+  } catch (error) {
+    console.error('SQL Error:', error);
+    throw new Error('Error adding conversation');
+  }
 };
 
 const removeConversation = async ({ userId, conversationId }) => {
