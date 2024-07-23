@@ -408,7 +408,6 @@ h2 {
   background-color: #36393e;
   transition: transform 0.3s ease-in-out;
   height: calc(100% - 4em);
-  margin-top: 4em;
   position: fixed;
   border-right: solid 0.1em #212529;
 }

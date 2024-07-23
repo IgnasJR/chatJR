@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecretKey = process.env.SecretKey;
 
 const verifyJwt = (req) => {
+  if (req === undefined || req === null ) return null;
   const token = req.replace('Bearer ', '');
   try {
     const decoded = jwt.verify(token, jwtSecretKey);
