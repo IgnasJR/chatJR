@@ -31,16 +31,6 @@ function Chat({
   const [selectedUsername, setUsername] = useState('');
   const [hoveredElement, setHoveredElement] = useState(null);
 
-  useEffect(() => {
-    if (messageEl) {
-      messageEl.current.addEventListener('DOMNodeInserted', event => {
-        const { currentTarget: target } = event;
-        target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
-      });
-    }
-    observeLastMessage();
-  })
-
   const handleDeleteConversation = async (conversationId) => {
     try {
       const response = await fetch(
@@ -79,24 +69,6 @@ function Chat({
   const handleInputChange = (e) => {
     setNewMessage(e.target.value);
   };
-  const handleIntersection = (entries) => {
-    const entry = entries[0];
-    if (entry.isIntersecting && isObserving) {
-      fetchMessages();
-    }
-    else isObserving = true;
-  };
-
-  const observeLastMessage = () => {
-    if (observer.current) {
-      observer.current.disconnect();
-    }
-
-    observer.current = new IntersectionObserver(handleIntersection);
-    if (lastMessageRef.current) {
-      observer.current.observe(lastMessageRef.current);
-    }
-  };
 
   const handleSendMessageClick = async (e) => {
     e.preventDefault();
@@ -134,7 +106,19 @@ function Chat({
             setNewUserInput={setNewUserInput} 
             handleAddConversation={handleAddConversation}
         />
-        <Conversation sidebarOpen={sidebarOpen} handleSendMessageClick={handleSendMessageClick} messageEl={messageEl} lastMessageRef={lastMessageRef} currentUserId={currentUserId} messages={messages} newMessage={newMessage} handleInputChange={handleInputChange} />
+        <Conversation 
+        sidebarOpen={sidebarOpen} 
+        handleSendMessageClick={handleSendMessageClick} 
+        messageEl={messageEl} 
+        lastMessageRef={lastMessageRef} 
+        currentUserId={currentUserId} 
+        messages={messages} 
+        newMessage={newMessage} 
+        handleInputChange={handleInputChange} 
+        observer={observer}
+        fetchMessages={fetchMessages}
+        isObserving={isObserving}
+        />
       </div>  
     </div>
     

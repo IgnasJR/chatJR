@@ -31,15 +31,27 @@ const setupExpress = (app) => {
   });
 
   app.delete('/api/conversations', async (req, res) => {
-    const userId = verifyJwt(req.headers.authorization);
-    const { conversationId } = req.body;
-    const result = await removeConversation({ userId, conversationId });
-    if (result === Error('Error removing conversation')) {
-      res.status(400).json({ error: result.message });
-    } else if (result === Error('Conversation cannot be removed')) {
-      res.status(403).json({ error: result.message });
-    } else {
-      res.status(201).json('Conversation removed successfully');
+    try {
+      const userId = verifyJwt(req.headers.authorization);
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const { conversationId } = req.body;
+      if (!conversationId) {
+        return res.status(400).json({ error: 'No conversation ID provided' });
+      }
+      const result = await removeConversation({ userId, conversationId });
+      if (result instanceof Error) {
+        if (result.message === 'Conversation cannot be removed') {
+          return res.status(403).json({ error: result.message });
+        } else {
+          return res.status(500).json({ error: result.message });
+        }
+      }
+      res.status(200).json({ message: result });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Unexpected error occurred' });
     }
   });
 

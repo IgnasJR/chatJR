@@ -52,7 +52,7 @@ function App() {
       let newSocket = io.connect(
         serverOptions.isDevelopment
           ? serverOptions.socketUrl
-          : `${window.location.protocol}//${window.location.hostname}:8080/`,
+          : `${window.location.protocol}//${window.location.hostname}:8080`,
         connectionOptions
       ); // Set the socket state
       setSocket(newSocket);

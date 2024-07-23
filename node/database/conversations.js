@@ -57,8 +57,8 @@ const createConversation = async ({ userId, username, firstKey, secondKey }) => 
 
 const removeConversation = async ({ userId, conversationId }) => {
   const conversationQuery = `
-    DELETE FROM Conversations WHERE 
-    conversation_id = ? AND 
+    DELETE FROM Conversations WHERE
+    conversation_id = ? AND
     (user1_id = ? OR user2_id = ?)
   `;
 
@@ -66,30 +66,35 @@ const removeConversation = async ({ userId, conversationId }) => {
     DELETE FROM Messages WHERE conversation_id = ?
   `;
 
-  return new Promise((resolve, reject) => {
-    connection.getConnection((err, conn) => {
-      if (err) {
-        reject(new Error('Failed to establish connection to database'));
-      } else {
-        conn.query(conversationQuery, [conversationId, userId, userId], (err, result) => {
-          if (err) {
-            reject(new Error('Error removing conversation'));
-          } else if (result && result.affectedRows === 0) {
-            resolve(new Error('Conversation cannot be removed'));
-          } else {
-            conn.query(messagesQuery, [conversationId], (err, messagesResult) => {
-              conn.release();
-              if (err) {
-                reject(new Error('Error removing messages'));
-              } else {
-                resolve(messagesResult.affectedRows);
-              }
-            });
-          }
-        });
+  try {
+    const conn = await connection.getConnection();
+
+    try {
+      await conn.beginTransaction();
+
+      const [conversationResult] = await conn.execute(conversationQuery, [conversationId, userId, userId]);
+
+      if (conversationResult.affectedRows === 0) {
+        await conn.rollback();
+        return new Error('Conversation cannot be removed');
       }
-    });
-  });
+
+      const [messagesResult] = await conn.execute(messagesQuery, [conversationId]);
+
+      await conn.commit();
+      return messagesResult.affectedRows;
+
+    } catch (error) {
+      await conn.rollback();
+      console.error('Error in transaction:', error);
+      throw new Error('Error removing conversation and messages');
+    } finally {
+      conn.release();
+    }
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+    throw new Error('Failed to establish connection to database');
+  }
 };
 
 module.exports = { createConversation, getConversationsIdsForUsers, removeConversation };
