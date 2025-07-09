@@ -13,7 +13,7 @@ const setup = () => {
   app.use(express.json());
   setupExpress(app);
   io.on('connection', setupSockets);
-  io.listen(8080);
+  io.listen(3001);
 
   const PORT = process.env.UsedPort;
   app.listen(PORT, () => {
@@ -22,3 +22,4 @@ const setup = () => {
 };
 
 setup();
+

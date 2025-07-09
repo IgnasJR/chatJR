@@ -1,3 +1,3 @@
 ### Hey there!
 
-## Welcome to my project! My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platform. Throughout the development process, I've been exploring the ins and outs of Node.js and React, experimenting with different concepts and techniques. However, as with any learning project, there is always room for improvement. That's why I am currently in the process of refactoring the code.
+Welcome to my project! My attempt at learning NodeJS, SQL, React by creating a simple e2ee chat platform. Throughout the development process, I've been exploring the ins and outs of Node.js and React, experimenting with different concepts and techniques. However, as with any learning project, there is always room for improvement. That's why I am currently in the process of refactoring the code.

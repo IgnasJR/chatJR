@@ -5,7 +5,6 @@ import Chat from "./Chat";
 import io from "socket.io-client";
 import crypto from "./crypto";
 import { handleSendMessage } from "./messageHandler";
-import serverOptions from "./serverSettings";
 import Cookies from "js-cookie";
 
 let loadedLastMessage = false;
@@ -49,12 +48,10 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      let newSocket = io.connect(
-        serverOptions.isDevelopment
-          ? serverOptions.socketUrl
-          : `${window.location.protocol}//${window.location.hostname}:8080`,
-        connectionOptions
-      ); // Set the socket state
+      let newSocket = io(process.env.REACT_APP_SOCKET_URL || "/", {
+        transports: ["websocket"],
+      });
+
       setSocket(newSocket);
       console.log("Succesfully connected to a socket");
       if (selectedUser) {
@@ -102,16 +99,11 @@ function App() {
   const fetchConversations = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        serverOptions.isDevelopment
-          ? serverOptions.backUrl + `/api/conversations`
-          : `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/conversations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const data = await response.json();
       if (response.ok) {
@@ -130,16 +122,11 @@ function App() {
     let aesKey = crypto.generateAESkey();
     let otherPublicKey;
     try {
-      const response = await fetch(
-        serverOptions.isDevelopment
-          ? serverOptions.backUrl + `/api/verify`
-          : `${window.location.protocol}//${window.location.hostname}:3001/api/getPublicKey/${newUserInput}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/getPublicKey/${newUserInput}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       if (response.ok) {
         otherPublicKey = data;
@@ -165,24 +152,19 @@ function App() {
     console.log("Other public key: ", otherPublicKey);
     console.log("Public key: ", public_key);
     try {
-      const response = await fetch(
-        serverOptions.isDevelopment
-          ? serverOptions.backUrl + `/api/conversations`
-          : `${window.location.protocol}//${window.location.hostname}:3001/api/conversations`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`/api/conversations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
 
-          body: JSON.stringify({
-            username: newUserInput,
-            firstKey: crypto.encryptKey(aesKey, public_key),
-            secondKey: crypto.encryptKey(aesKey, otherPublicKey.public_key),
-          }),
-        }
-      );
+        body: JSON.stringify({
+          username: newUserInput,
+          firstKey: crypto.encryptKey(aesKey, public_key),
+          secondKey: crypto.encryptKey(aesKey, otherPublicKey.public_key),
+        }),
+      });
 
       const data = await response.json();
       if (response.ok) {
@@ -211,9 +193,7 @@ function App() {
     setIsLoading(true);
     try {
       if (selectedUser) {
-        let url = serverOptions.isDevelopment
-          ? serverOptions.backUrl + `/api/messages/${selectedUser}`
-          : `${window.location.protocol}//${window.location.hostname}:3001/api/messages/${selectedUser}`;
+        let url = `/api/messages/${selectedUser}`;
 
         if (messages.length > 0) {
           url += `?lastMessageId=${messages[0].message_id}`;
@@ -331,7 +311,6 @@ function App() {
           public_key={public_key}
           errorHandling={errorHandling}
           errorMessage={errorMessage}
-          serverOptions={serverOptions}
           removeCookie={removeCookie}
           setMessages={setMessages}
           crypto={crypto}
@@ -347,7 +326,6 @@ function App() {
           setIsLoading={setIsLoading}
           hashPassword={crypto.hashPassword}
           errorHandling={errorHandling}
-          serverOptions={serverOptions}
           setCookie={setCookie}
         />
       )}
