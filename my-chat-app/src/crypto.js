@@ -11,7 +11,6 @@ const hashPassword = (username, password) => {
 
 const encryptKey = (message, publicKey) => {
   try {
-    console.log("Encrypting message ", message, " with public key: ", publicKey);
     const publicKeyObj = forge.pki.publicKeyFromPem(publicKey);
     const encrypted = forge.util.encode64(
       publicKeyObj.encrypt(message, "RSA-OAEP", {
@@ -56,12 +55,17 @@ const generateAESkey = () => {
 };
 
 const encryptMessage = (message, aesKey) => {
+  if (!aesKey) {
+    throw new Error("AES key is required for encryption");
+  }
   const encrypted = CryptoJS.AES.encrypt(message, aesKey).toString();
   return encrypted;
 };
 
 const decryptMessage = (encrypted, aesKey) => {
-  console.log("Decrypting message: ", encrypted, " with key: ", aesKey);
+  if (!aesKey) {
+    throw new Error("AES key is required for decryption");
+  }
   const bytes = CryptoJS.AES.decrypt(encrypted, aesKey);
   const plain = bytes.toString(CryptoJS.enc.Utf8);
   return plain;

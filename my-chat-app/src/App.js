@@ -1,13 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
-import Login from "./Login";
-import Chat from "./Chat";
-import io from "socket.io-client";
-import crypto from "./crypto";
-import { handleSendMessage } from "./messageHandler";
+import React, { useState } from "react";
+import Login from "./Pages/Login";
+import Chat from "./Pages/Chat";
 import Cookies from "js-cookie";
-
-let loadedLastMessage = false;
+import crypto from "./crypto";
 
 function App() {
   const [private_key, setPrivateKey] = useState(Cookies.get("privateKey"));
@@ -15,73 +10,13 @@ function App() {
   const [currentUserId, setCurrentUserId] = useState(
     parseInt(Cookies.get("userId"))
   );
-  const [conversations, setConversations] = useState([]);
   const [token, setToken] = useState(Cookies.get("token"));
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [selectedUser, setSelectedUser] = useState("");
-  const [aesKey, setAesKey] = useState("");
   const [errorMessage, updateErrorMessage] = useState({
     errorStatus: false,
     message: null,
   });
-  const [privacy, setPrivacy] = useState(false);
-  const handleSetPrivacy = () => {
-    setPrivacy(!privacy);
-    loadedLastMessage = false;
-  };
-  const handleUserSelection = (userId, key) => {
-    setMessages([]);
-    loadedLastMessage = false;
-    setSelectedUser(userId);
-    setAesKey(crypto.decryptKey(key, private_key));
-  };
+
   const [isLoading, setIsLoading] = useState(false);
-
-  const connectionOptions = {
-    "force new connection": true,
-    reconnectionAttempts: "Infinity",
-    timeout: 10000,
-    transports: ["websocket"],
-  };
-  const [socket, setSocket] = useState(null);
-
-  useEffect(() => {
-    if (token) {
-      let newSocket = io(process.env.REACT_APP_SOCKET_URL || "/", {
-        transports: ["websocket"],
-      });
-
-      setSocket(newSocket);
-      console.log("Succesfully connected to a socket");
-      if (selectedUser) {
-        socket.emit("authenticate", {
-          token: token,
-          conversationId: selectedUser,
-        });
-        socket.on("message", function (messageContent) {
-          console.log("Message received:", messageContent);
-          if (currentUserId === messageContent.sender_id) return;
-          messageContent.message_content = crypto.decryptMessage(
-            messageContent.message_content,
-            aesKey
-          );
-          console.log("Decrypted message: ", messageContent);
-
-          setMessages((prevMessages) => [...prevMessages, messageContent]);
-        });
-      }
-      fetchConversations();
-      if (selectedUser) {
-        fetchMessages(selectedUser);
-      }
-      return () => {
-        if (socket) {
-          socket.disconnect();
-        }
-      };
-    }
-  }, [token, selectedUser, messages]);
 
   const setCookie = (token, privateKey, userId, publicKey) => {
     Cookies.set("token", token, { expires: 7, secure: false });
@@ -94,161 +29,6 @@ function App() {
     Cookies.remove("privateKey");
     Cookies.remove("userId");
     Cookies.remove("publicKey");
-  };
-
-  const fetchConversations = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/conversations`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setConversations(data);
-      } else {
-        console.error("Error:", data.error);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    setIsLoading(false);
-  };
-
-  const handleAddConversation = async (newUserInput) => {
-    setIsLoading(true);
-    let aesKey = crypto.generateAESkey();
-    let otherPublicKey;
-    try {
-      const response = await fetch(`/api/getPublicKey/${newUserInput}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        otherPublicKey = data;
-      } else {
-        throw new Error("Unable to fetch user");
-      }
-    } catch (error) {
-      errorHandling("Unable to fetch user");
-      setIsLoading(false);
-      return;
-    }
-
-    if (
-      conversations.some(
-        (conversation) => conversation.username === newUserInput
-      )
-    ) {
-      setIsLoading(false);
-      errorHandling("Conversation already exists");
-      return;
-    }
-
-    console.log("Other public key: ", otherPublicKey);
-    console.log("Public key: ", public_key);
-    try {
-      const response = await fetch(`/api/conversations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-
-        body: JSON.stringify({
-          username: newUserInput,
-          firstKey: crypto.encryptKey(aesKey, public_key),
-          secondKey: crypto.encryptKey(aesKey, otherPublicKey.public_key),
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setConversations([
-          ...conversations,
-          {
-            conversation_id: data.conversationId,
-            user_id: newUserInput,
-            username: newUserInput,
-            key: aesKey,
-          },
-        ]);
-        setSelectedUser("");
-        fetchConversations();
-      } else {
-        console.error(data.error);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    setIsLoading(false);
-  };
-
-  const fetchMessages = async () => {
-    if (loadedLastMessage) return;
-    setIsLoading(true);
-    try {
-      if (selectedUser) {
-        let url = `/api/messages/${selectedUser}`;
-
-        if (messages.length > 0) {
-          url += `?lastMessageId=${messages[0].message_id}`;
-        }
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          if (data.length > 0) {
-            data.forEach((message) => {
-              message.message_content = crypto.decryptMessage(
-                message.message_content,
-                aesKey
-              );
-            });
-            setMessages((prevMessages) => [...data, ...prevMessages]);
-          } else {
-            loadedLastMessage = true;
-            console.log(
-              "No messages have been received, last message is ",
-              messages[0].message_id
-            );
-          }
-        }
-      } else {
-        setMessages([]);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-
-    setIsLoading(false);
-  };
-
-  const SendSocketMessage = async () => {
-    let message = {
-      token: token,
-      conversationId: selectedUser,
-      sender_id: null,
-      message_content: crypto.encryptMessage(newMessage, aesKey),
-      created_at: Date.now(),
-    };
-
-    socket.emit("message", message);
-    message = {
-      ...message,
-      message_content: newMessage,
-      sender_id: currentUserId,
-    };
-    console.log("Message sent:", message);
-    setMessages((prevMessages) => [...prevMessages, message]);
   };
 
   const errorHandling = (error) => {
@@ -293,28 +73,14 @@ function App() {
         <Chat
           currentUserId={currentUserId}
           token={token}
-          conversations={conversations}
-          messages={messages}
-          selectedUser={selectedUser}
-          setSelectedUser={setSelectedUser}
-          handleAddConversation={handleAddConversation}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          handleSendMessage={handleSendMessage}
-          handleUserSelection={handleUserSelection}
-          fetchMessages={fetchMessages}
           isLoading={isLoading}
-          setPrivacy={setPrivacy}
-          privacy={privacy}
-          handleSetPrivacy={handleSetPrivacy}
-          SendSocketMessage={SendSocketMessage}
           public_key={public_key}
           errorHandling={errorHandling}
           errorMessage={errorMessage}
           removeCookie={removeCookie}
-          setMessages={setMessages}
           crypto={crypto}
-          aesKey={aesKey}
+          setIsLoading={setIsLoading}
+          private_key={private_key}
         />
       ) : (
         <Login

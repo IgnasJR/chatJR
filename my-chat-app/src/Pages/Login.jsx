@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import RegisterForm from "./RegisterForm";
-import crypto from "./crypto";
+import RegisterForm from "../RegisterForm";
+import crypto from "../crypto";
 
 function Login({
   setIsLoading,
