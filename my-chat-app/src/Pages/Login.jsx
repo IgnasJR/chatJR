@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import RegisterForm from "../RegisterForm";
 import crypto from "../crypto";
+import { setStorage } from "../localStorage";
 
 function Login({
   setIsLoading,
@@ -40,7 +41,7 @@ function Login({
 
       const data = await response.json();
       if (response.ok) {
-        await setCookie(
+        await setStorage(
           data.token,
           crypto.decryptPrivateKey(data.privateKey, password),
           data.userId,

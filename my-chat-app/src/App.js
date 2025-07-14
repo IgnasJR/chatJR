@@ -1,35 +1,25 @@
 import React, { useState } from "react";
 import Login from "./Pages/Login";
 import Chat from "./Pages/Chat";
-import Cookies from "js-cookie";
 import crypto from "./crypto";
 
 function App() {
-  const [private_key, setPrivateKey] = useState(Cookies.get("privateKey"));
-  const [public_key, setPublicKey] = useState(Cookies.get("publicKey"));
-  const [currentUserId, setCurrentUserId] = useState(
-    parseInt(Cookies.get("userId"))
+  const [private_key, setPrivateKey] = useState(
+    localStorage.getItem("privateKey")
   );
-  const [token, setToken] = useState(Cookies.get("token"));
+  const [public_key, setPublicKey] = useState(
+    localStorage.getItem("publicKey")
+  );
+  const [currentUserId, setCurrentUserId] = useState(
+    parseInt(localStorage.getItem("userId"))
+  );
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [errorMessage, updateErrorMessage] = useState({
     errorStatus: false,
     message: null,
   });
 
   const [isLoading, setIsLoading] = useState(false);
-
-  const setCookie = (token, privateKey, userId, publicKey) => {
-    Cookies.set("token", token, { expires: 7, secure: false });
-    Cookies.set("privateKey", privateKey, { expires: 7, secure: false });
-    Cookies.set("userId", userId, { expires: 7, secure: false });
-    Cookies.set("publicKey", publicKey, { expires: 7, secure: false });
-  };
-  const removeCookie = () => {
-    Cookies.remove("token");
-    Cookies.remove("privateKey");
-    Cookies.remove("userId");
-    Cookies.remove("publicKey");
-  };
 
   const errorHandling = (error) => {
     switch (error) {
@@ -73,12 +63,8 @@ function App() {
         <Chat
           currentUserId={currentUserId}
           token={token}
-          isLoading={isLoading}
           public_key={public_key}
           errorHandling={errorHandling}
-          errorMessage={errorMessage}
-          removeCookie={removeCookie}
-          crypto={crypto}
           setIsLoading={setIsLoading}
           private_key={private_key}
         />
@@ -92,7 +78,6 @@ function App() {
           setIsLoading={setIsLoading}
           hashPassword={crypto.hashPassword}
           errorHandling={errorHandling}
-          setCookie={setCookie}
         />
       )}
     </div>

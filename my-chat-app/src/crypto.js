@@ -2,7 +2,6 @@ import CryptoJS from "crypto-js";
 import forge from "node-forge";
 
 const hashPassword = (username, password) => {
-  console.log(username, password);
   var algo = CryptoJS.algo.SHA256.create();
   algo.update(password, "utf-8");
   algo.update(CryptoJS.SHA256(username), "utf-8");
@@ -24,8 +23,6 @@ const encryptKey = (message, publicKey) => {
 };
 
 const decryptKey = (message, privateKey) => {
-  console.log("Private key: ", privateKey);
-
   const privateKeyObj = forge.pki.privateKeyFromPem(privateKey);
   const decrypted = privateKeyObj.decrypt(
     forge.util.decode64(message),
@@ -36,6 +33,7 @@ const decryptKey = (message, privateKey) => {
   );
   return decrypted;
 };
+
 const decryptPrivateKey = (privateKey, password) => {
   try {
     const decryptedPrivateKey = CryptoJS.AES.decrypt(

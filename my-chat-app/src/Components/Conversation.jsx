@@ -4,12 +4,11 @@ import crypto from "../crypto";
 import { handleSendMessage } from "../messageHandler";
 
 let loadedLastMessage = false;
+
 const Conversation = ({
   token,
   selectedUser,
   sidebarOpen,
-  messageEl,
-  lastMessageRef,
   currentUserId,
   handleInputChange,
   setIsLoading,
@@ -21,6 +20,8 @@ const Conversation = ({
   const [socket, setSocket] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const observer = useRef();
+  const lastMessageRef = useRef();
+  const messageEl = useRef(null);
   let isObserving = false;
 
   useEffect(() => {
@@ -28,39 +29,38 @@ const Conversation = ({
   }, [messages]);
 
   useEffect(() => {
-    if (token) {
+    if (!selectedUser) return;
+
+    loadedLastMessage = false;
+    setMessages([]);
+
+    const initConversation = async () => {
       let newSocket = io(process.env.REACT_APP_SOCKET_URL || "/", {
         transports: ["websocket"],
       });
-
       setSocket(newSocket);
       console.log("Succesfully connected to a socket");
-      if (selectedUser) {
-        socket.emit("authenticate", {
-          token: token,
-          conversationId: selectedUser.conversation_id,
-        });
-        socket.on("message", function (messageContent) {
-          console.log("Message received:", messageContent);
-          if (currentUserId === messageContent.sender_id) return;
-          messageContent.message_content = crypto.decryptMessage(
-            messageContent.message_content,
-            aesKey
-          );
-          console.log("Decrypted message: ", messageContent);
+      newSocket.emit("authenticate", {
+        token,
+        conversationId: selectedUser.conversation_id,
+      });
+      newSocket.on("message", (messageContent) => {
+        if (currentUserId === messageContent.sender_id) return;
+        messageContent.message_content = crypto.decryptMessage(
+          messageContent.message_content,
+          aesKey
+        );
 
-          setMessages((prevMessages) => [...prevMessages, messageContent]);
-        });
+        setMessages((prevMessages) => [...prevMessages, messageContent]);
+      });
+      await fetchMessages(selectedUser.conversation_id, true);
+    };
+    initConversation();
+    return () => {
+      if (socket) {
+        socket.disconnect();
       }
-      if (selectedUser) {
-        fetchMessages(selectedUser);
-      }
-      return () => {
-        if (socket) {
-          socket.disconnect();
-        }
-      };
-    }
+    };
   }, [selectedUser]);
 
   const handleSendMessageClick = async (e) => {
@@ -88,54 +88,45 @@ const Conversation = ({
     }
   };
 
-  const fetchMessages = async () => {
-    if (loadedLastMessage) return;
+  const fetchMessages = async (conversationId, reset = false) => {
+    if (loadedLastMessage || !conversationId) return;
     setIsLoading(true);
     try {
-      if (selectedUser) {
-        let url = `/api/messages/${selectedUser.conversation_id}`;
+      let url = `/api/messages/${conversationId}`;
 
-        if (messages.length > 0) {
-          url += `?lastMessageId=${messages[0].message_id}`;
-        }
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      if (!reset && messages.length > 0) {
+        url += `?lastMessageId=${messages[0].message_id}`;
+      }
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const data = await response.json();
-        if (response.ok) {
-          if (data.length > 0) {
-            data.forEach((message) => {
-              message.message_content = crypto.decryptMessage(
-                message.message_content,
-                aesKey
-              );
-            });
-            setMessages((prevMessages) => [...data, ...prevMessages]);
-          } else {
-            loadedLastMessage = true;
-            console.log(
-              "No messages have been received, last message is ",
-              messages[0].message_id
+      const data = await response.json();
+      if (response.ok) {
+        if (data.length > 0) {
+          data.forEach((message) => {
+            message.message_content = crypto.decryptMessage(
+              message.message_content,
+              aesKey
             );
-          }
+          });
+          setMessages((prevMessages) => [...data, ...prevMessages]);
+        } else {
+          loadedLastMessage = true;
         }
-      } else {
-        setMessages([]);
       }
     } catch (error) {
       console.error("Error:", error);
     }
-
     setIsLoading(false);
   };
 
   const handleIntersection = (entries) => {
     const entry = entries[0];
     if (entry.isIntersecting && isObserving) {
-      fetchMessages();
+      fetchMessages(selectedUser.conversation_id);
     } else {
       isObserving = true;
     }

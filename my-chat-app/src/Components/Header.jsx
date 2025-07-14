@@ -1,11 +1,8 @@
-import Cookies from "js-cookie";
+import { removeStorage } from "../localStorage";
 
 const Header = ({ selectedUser, toggleSidebar }) => {
   const logOut = () => {
-    Cookies.remove("token");
-    Cookies.remove("privateKey");
-    Cookies.remove("userId");
-    Cookies.remove("publicKey");
+    removeStorage();
     window.location.reload();
   };
 

@@ -1,42 +1,66 @@
 import { useEffect, useState } from "react";
+import crypto from "../crypto";
 
 const Sidebar = ({
   sidebarOpen,
   setSelectedUser,
-  handleDeleteConversation,
-  hoveredElement,
-  newUserInput,
-  setNewUserInput,
   setIsLoading,
   token,
   public_key,
   errorHandling,
 }) => {
   const [conversations, setConversations] = useState([]);
+  const [newUserInput, setNewUserInput] = useState("");
+
+  const [hoveredElement, setHoveredElement] = useState(null);
 
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/conversations`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  const fetchConversations = async () => {
-    setIsLoading(true);
+        const data = await response.json();
+        if (response.ok) {
+          setConversations(data);
+        } else {
+          console.error("Error:", data.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [setIsLoading, token]);
+
+  const handleDeleteConversation = async (conversationId) => {
     try {
       const response = await fetch(`/api/conversations`, {
+        method: "DELETE",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          conversationId,
+        }),
       });
-
-      const data = await response.json();
       if (response.ok) {
-        setConversations(data);
-      } else {
-        console.error("Error:", data.error);
+        setConversations(
+          conversations.filter(
+            (conversation) => conversation.conversation_id !== conversationId
+          )
+        );
+        setNewUserInput("");
       }
     } catch (error) {
-      console.error("Error:", error);
+      errorHandling(error.message);
     }
-    setIsLoading(false);
   };
 
   const handleAddConversation = async (newUserInput) => {
@@ -56,7 +80,7 @@ const Sidebar = ({
         throw new Error("Unable to fetch user");
       }
     } catch (error) {
-      errorHandling("Unable to fetch user");
+      // errorHandling("Unable to fetch user");
       setIsLoading(false);
       return;
     }
@@ -96,8 +120,7 @@ const Sidebar = ({
             key: aesKey,
           },
         ]);
-        setSelectedUser("");
-        fetchConversations();
+        setSelectedUser();
       } else {
         console.error(data.error);
       }
@@ -119,6 +142,8 @@ const Sidebar = ({
             onClick={() => {
               setSelectedUser(conversation);
             }}
+            onMouseEnter={() => setHoveredElement(conversation.conversation_id)}
+            onMouseLeave={() => setHoveredElement(null)}
           >
             {conversation.username}
             {hoveredElement === conversation.conversation_id ? (
