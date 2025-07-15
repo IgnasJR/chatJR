@@ -21,8 +21,6 @@ async function setupDatabase() {
 
   const { DBHost: host, DBUser: user, DBPort: port, DBPass: password, DBName: database } = process.env;
 
-  console.log('Database configuration:', { host, user, port, database });
-
   let initialConnection;
   try {
     initialConnection = await mysql.createConnection({

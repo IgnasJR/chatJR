@@ -66,7 +66,7 @@ DBPort=your-db-port (usually 3306 for mariadb and mysql)
 3. Build the image:
 
 ```sh
-docker build -t chatjr .
+docker build --build-arg REACT_APP_SOCKET_URL=localhost:3001 -t chatjr .
 ```
 
 4. Start a container:

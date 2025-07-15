@@ -4,6 +4,8 @@ FROM node:24-slim AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
+ARG REACT_APP_SOCKET_URL
+ENV REACT_APP_SOCKET_URL=$REACT_APP_SOCKET_URL
 COPY frontend/ ./
 RUN npm run build
 
