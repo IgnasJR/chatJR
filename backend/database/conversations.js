@@ -45,10 +45,13 @@ const createConversation = async ({ userId, username, firstKey, secondKey }) => 
     const [result] = await connection.execute(conversationQuery, [userId, firstKey, secondKey, username, userId, userId, userId]);
 
     if (result.affectedRows === 0) {
-      return 'Conversation already exists';
+      return { message: 'Conversation already exists' };
     }
 
-    return 'Conversation added successfully';
+    return {
+      message: 'Conversation added successfully',
+      conversationId: result.insertId,
+    };
   } catch (error) {
     console.error('SQL Error:', error);
     throw new Error('Error adding conversation');
@@ -83,7 +86,6 @@ const removeConversation = async ({ userId, conversationId }) => {
 
       await conn.commit();
       return messagesResult.affectedRows;
-
     } catch (error) {
       await conn.rollback();
       console.error('Error in transaction:', error);
@@ -98,3 +100,4 @@ const removeConversation = async ({ userId, conversationId }) => {
 };
 
 module.exports = { createConversation, getConversationsIdsForUsers, removeConversation };
+

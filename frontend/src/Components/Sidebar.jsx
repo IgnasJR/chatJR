@@ -117,7 +117,7 @@ const Sidebar = ({
             conversation_id: data.conversationId,
             user_id: newUserInput,
             username: newUserInput,
-            key: aesKey,
+            user_key: crypto.encryptKey(aesKey, public_key),
           },
         ]);
         setSelectedUser();

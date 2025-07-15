@@ -8,21 +8,21 @@ const setupExpress = (app) => {
   // Create a new conversation
   app.post('/api/conversations', async (req, res) => {
     try {
-      const userId = verifyJwt(req.headers.authorization);      
+      const userId = verifyJwt(req.headers.authorization);
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
-  
+
       const { username, firstKey, secondKey } = req.body;
-        if (!username || !firstKey || !secondKey) {
+      if (!username || !firstKey || !secondKey) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-  
-      const result = await createConversation({ userId, username, firstKey, secondKey });  
+
+      const result = await createConversation({ userId, username, firstKey, secondKey });
       if (result === 'Conversation already exists') {
         res.status(400).json({ error: 'Conversation already exists' });
       } else {
-        res.status(201).json({ message: 'Conversation added successfully' });
+        res.status(201).json({ message: 'Conversation added successfully', conversationId: result.conversationId });
       }
     } catch (error) {
       console.error('Error creating conversation:', error);
@@ -69,10 +69,10 @@ const setupExpress = (app) => {
   app.get('/api/conversations', async (req, res) => {
     try {
       const userId = verifyJwt(req.headers.authorization);
-        if (!userId) {
+      if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
-  
+
       const query = `
         SELECT 
           C.conversation_id, 
@@ -86,33 +86,32 @@ const setupExpress = (app) => {
         WHERE ? IN (C.user1_id, C.user2_id)
           AND U.id <> ?;
       `;
-        const [results] = await connection.execute(query, [userId, userId, userId, userId]);
-  
+      const [results] = await connection.execute(query, [userId, userId, userId, userId]);
+
       res.json(results);
     } catch (error) {
       console.error('Error retrieving conversations:', error);
       res.status(500).json({ error: 'Error retrieving conversations' });
     }
   });
-  
 
   app.post('/api/login', async (req, res) => {
     try {
       const { username, password } = req.body;
-  
+
       if (!username || !password) {
         return res.status(400).json({ error: 'Username and password cannot be empty' });
       }
-  
+
       const query = 'SELECT * FROM Users WHERE username = ?';
       const [results] = await connection.execute(query, [username]);
-  
+
       if (results.length === 0) {
         return res.status(401).json({ error: 'Invalid username or password' });
       }
-  
+
       const user = results[0];
-  
+
       if (user.password === password) {
         const token = createJwt(user);
         return res.json({ userId: user.id, token, privateKey: user.private_key, publicKey: user.public_key });
@@ -133,7 +132,7 @@ const setupExpress = (app) => {
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-  
+
     let query;
     let queryParams;
     if (lastMessageId === 0) {
@@ -188,7 +187,7 @@ const setupExpress = (app) => {
   app.post('/api/register', async (req, res) => {
     try {
       const { username, password, publicKey, privateKey } = req.body;
-  
+
       if (!username || !password || username.includes(' ') || password.includes(' ')) {
         return res.status(400).json({ error: 'Username and password cannot contain spaces and cannot be empty' });
       }
@@ -207,25 +206,23 @@ const setupExpress = (app) => {
       res.status(500).json({ error: 'Error registering a user' });
     }
   });
-  
 
   app.get('/api/getPublicKey/:username', async (req, res) => {
     try {
-      const query = 'SELECT public_key FROM Users WHERE username = ?';
+      const query = 'SELECT public_key AS user_key FROM Users WHERE username = ?';
       const [results] = await connection.execute(query, [req.params.username]);
-  
+
       if (results.length === 0) {
         return res.status(404).json({ error: 'User not found' });
       }
-  
-      res.json({ public_key: results[0].public_key });
+
+      res.json({ public_key: results[0].user_key });
     } catch (error) {
       console.error('Error retrieving public key:', error);
       res.status(500).json({ error: 'Error retrieving public key' });
     }
   });
-  
-  
 };
 
 module.exports = { setupExpress };
+
