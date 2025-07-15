@@ -8,7 +8,6 @@ function Login({
   hashPassword,
   errorHandling,
   serverOptions,
-  setCookie,
   setPublicKey,
 }) {
   const [isRegisterOpen, setRegisterOpen] = useState(false);

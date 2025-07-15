@@ -3,13 +3,7 @@ import Modal from "react-modal";
 import forge from "node-forge";
 let CryptoJS = require("crypto-js");
 
-const RegisterForm = ({
-  isOpen,
-  onClose,
-  serverOptions,
-  errorHandling,
-  setIsLoading,
-}) => {
+const RegisterForm = ({ isOpen, onClose, errorHandling, setIsLoading }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 

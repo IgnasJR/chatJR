@@ -17,7 +17,7 @@ function Chat({
   const [aesKey, setAesKey] = useState("");
 
   function setUser(user) {
-    if (selectedUser === user || !user) return;
+    if (selectedUser === user.user_id || !user) return;
     setSelectedUser(user);
     setAesKey(crypto.decryptKey(user.user_key, private_key));
   }
